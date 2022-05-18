@@ -8,25 +8,26 @@ class Game
   include Codes
   def initialize
     @board = Array.new(4)
-    @player1 = HumanPlayer.new
-    @player2 = ComputerPlayer.new
+    @player1 = HumanPlayer.new(self)
+    @player2 = ComputerPlayer.new(self)
   end
   attr_reader :board
 
-  def self.code_maker # shouldn't be a class method. Need to figure this out
-    @board = Array.new(4) # need to get this to pull properly from initialize not re-create
+  def code_maker
+    @board = Array.new(4)
     @board.map! { |code| CODES.sample }
   end
 end
 
 class Player
-  def initialize
-  #  @game = game
+  def initialize(game)
+  @game = game
   end
 end
 
 class HumanPlayer < Player
-  def initialize
+  def initialize(game)
+    super
     puts "Hello codebreaker, what is your name?"
     name = gets.chomp.to_s
     @name = name
@@ -38,10 +39,15 @@ class HumanPlayer < Player
 end
 
 class ComputerPlayer < Player
+  def initialize(game)
+    super
+    create_code
+  end
+
   def create_code
     # create the code here
-    Game.code_maker # don't want this to call a class method. Need to figure out how to call instance method
+    p "The computer code is #{@game.code_maker}"
   end
 end
 
-puts ComputerPlayer.new.create_code
+game1 = Game.new
