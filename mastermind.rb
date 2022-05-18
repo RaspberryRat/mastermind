@@ -1,9 +1,10 @@
-require "pry-byebug" # cause I know I'll need it
+require "pry-byebug"
 
 module Codes
   CODES = %w[red green blue yellow brown orange black white].freeze
 end
 
+# contians the game logic
 class Game
   include Codes
   def initialize
@@ -19,12 +20,14 @@ class Game
   end
 end
 
+# superclass for players
 class Player
   def initialize(game)
-  @game = game
+    @game = game
   end
 end
 
+# methods for humanplayer
 class HumanPlayer < Player
   def initialize(game)
     super
@@ -38,15 +41,22 @@ class HumanPlayer < Player
   end
 end
 
+# sets methods for the Computer
 class ComputerPlayer < Player
   def initialize(game)
     super
-    create_code
+    @current_code = create_code
   end
 
   def create_code
     # create the code here
-    p "The computer code is #{@game.code_maker}"
+    @game.code_maker
+  end
+
+  protected
+
+  def read_code
+    @current_code
   end
 end
 
