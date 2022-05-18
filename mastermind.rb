@@ -48,7 +48,7 @@ class HumanPlayer < Player
   end
 
   attr_reader :name
-
+# TODO worked here last, next setup compare player guess with code and provide feedback
   def guess_code
     guess = []
     puts "#{name} it is your turn to guess"
