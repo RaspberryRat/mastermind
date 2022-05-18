@@ -11,12 +11,18 @@ class Game
     @board = Array.new(4)
     @player1 = HumanPlayer.new(self)
     @player2 = ComputerPlayer.new(self)
+    check_code
   end
   attr_reader :board
 
   def code_maker
     @board = Array.new(4)
     @board.map! { CODES.sample }
+  end
+
+  def check_code 
+    # test method to check if I can read code from ComputerPlayer instance
+    puts "this is the code: #{@player2.read_code}"
   end
 end
 
@@ -50,15 +56,12 @@ class ComputerPlayer < Player
   end
 
   def create_code
-    # create the code here
     @game.code_maker
   end
-
-  protected
 
   def read_code
     @current_code
   end
 end
 
-game1 = Game.new
+Game.new
