@@ -11,7 +11,7 @@ class Game
     @board = Array.new(4)
     @player1 = HumanPlayer.new(self)
     @player2 = ComputerPlayer.new(self)
-    check_code
+    game_turn
   end
   attr_reader :board
 
@@ -20,14 +20,19 @@ class Game
     @board.map! { CODES.sample }
   end
 
-  def check_code 
-    # test method to check if I can read code from ComputerPlayer instance
+# code here isn't needed. Just a test
+  def check_code
     puts "this is the code: #{@player2.read_code}"
+  end
+
+  def game_turn
+    @player1.guess_code
   end
 end
 
 # superclass for players
 class Player
+  include Codes
   def initialize(game)
     @game = game
   end
@@ -42,8 +47,23 @@ class HumanPlayer < Player
     @name = name
   end
 
+  attr_reader :name
+
   def guess_code
-    puts "Make your guess"
+    guess = []
+    puts "#{name} it is your turn to guess"
+    puts "Please enter your guess from left to right:"
+    print "Your choices are: #{CODES}\n"
+    4.times do
+      choice = gets.chomp.to_s
+      until CODES.any?(choice)
+        puts "Your choice: \"#{choice}\" is not a possible guess, please enter another guess"
+        print "Possible guesses are #{CODES}\n"
+        choice = gets.chomp.to_s
+      end
+      guess.push(choice)
+    end
+    print "Your guess is #{guess}.\n"
   end
 end
 
