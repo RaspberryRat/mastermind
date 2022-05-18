@@ -16,7 +16,7 @@ class Game
 
   def code_maker
     @board = Array.new(4)
-    @board.map! { |code| CODES.sample }
+    @board.map! { CODES.sample }
   end
 end
 
@@ -46,6 +46,7 @@ class ComputerPlayer < Player
   def initialize(game)
     super
     @current_code = create_code
+    p read_code
   end
 
   def create_code
