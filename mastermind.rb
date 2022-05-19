@@ -26,7 +26,8 @@ class Game
   end
 
   def game_turn
-    @player1.guess_code
+    x = @player1.guess_code
+    puts "from Game class, player guess is: #{x}"
   end
 end
 
@@ -64,6 +65,7 @@ class HumanPlayer < Player
       guess.push(choice)
     end
     print "Your guess is #{guess}.\n"
+    guess
   end
 end
 
