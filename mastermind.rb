@@ -26,8 +26,35 @@ class Game
   end
 
   def game_turn
-    x = @player1.guess_code
-    puts "from Game class, player guess is: #{x}"
+    player_guess = @player1.guess_code
+    check_answer(player_guess)
+  end
+
+  def check_answer(guess)
+    # retrieve current answer code
+    # is guess equal to code, if yes, return winner
+    # loop through each index in guess, and check if same as answer, if yes same to another array
+    # somehow, remove that choice from next check
+    # next check each one that is not the same if it is included in answer if yes, same to a second array
+    # provide feedback from both arrays
+    code = @player2.read_code
+    if code == guess
+      puts "WINNER!"
+      return
+    else
+      puts "not a winner"
+    end
+
+    # check if same spot
+    guess.zip(code).select do |pair|
+      if pair[0] == pair[1]
+        p pair # todo should save to array? or call to a method?
+      else
+        p "nope" # save into new array for any? comparison
+      end
+    end
+
+    # todo need any? comparison still
   end
 end
 
@@ -49,7 +76,7 @@ class HumanPlayer < Player
   end
 
   attr_reader :name
-# TODO worked here last, next setup compare player guess with code and provide feedback
+
   def guess_code
     guess = []
     puts "#{name} it is your turn to guess"
