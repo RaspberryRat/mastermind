@@ -35,7 +35,8 @@ class Game
     # is guess equal to code, if yes, return winner
     # loop through each index in guess, and check if same as answer, if yes same to another array
     # somehow, remove that choice from next check
-    # next check each one that is not the same if it is included in answer if yes, same to a second array
+    # next check each one that is not the same if it is included in answer
+    # if yes move to second array
     # provide feedback from both arrays
     code = @player2.read_code
     if code == guess
@@ -45,19 +46,40 @@ class Game
       puts "not a winner"
     end
 
+    # used to save feedback to provide to codebreaker
+    feedback = []
+
+    feedback.push(location_match(guess, code))
+
+    # remove the correct code guess location so can find other matches
+    code.delete_at(1)
+    guess.delete_at(1)
+
+    # will give count of number of correct colours in incorrect positions
+    # flattens to prevent array of arrays
+    feedback.push(correct_colours(guess, code)).flatten!
+
+    print "This is the check_answer feedback #{feedback}"
+  end
+
+  def location_match(guess, code)
+    correct_guess_index = []
     # check if same spot
-    guess.zip(code).select do |pair|
+    guess.zip(code).each_with_index do |pair, index|
       if pair[0] == pair[1]
-        p pair # todo should save to array? or call to a method?
-      else
-        p "nope" # save into new array for any? comparison
+        correct_guess_index.push(index) # saves index location of a match
       end
     end
+    correct_guess_index
+  end
 
-    # todo need any? comparison still
+  def correct_colours(guess, code)
+    guess.filter { |x| code.include?(x) }.length
   end
 end
 
+
+  
 # superclass for players
 class Player
   include Codes
