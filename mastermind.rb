@@ -57,6 +57,7 @@ class Game
 
     # will give count of number of correct colours in incorrect positions
     # flattens to prevent array of arrays
+    # TODO give feedback to player in readable manner
     feedback.push(correct_colours(guess, code)).flatten!
 
     print "This is the check_answer feedback #{feedback}"
