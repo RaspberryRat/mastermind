@@ -21,7 +21,7 @@ class Game
     @board.map! { CODES.sample }
   end
 
-# code here isn't needed. Used for debugging
+  # code here isn't needed. Used for debugging
   def check_code
     puts "this is the code: #{@player2.read_code}"
   end
@@ -30,10 +30,11 @@ class Game
     if @round_number == 10
       game_over
     else
-    player_guess = @player1.guess_code
-    @player1.save_feedback(check_answer(player_guess))
-    @round_number += 1
-    end    
+      player_guess = @player1.guess_code
+
+      @player1.save_feedback(check_answer(player_guess))
+      @round_number += 1
+    end
   end
 
   def check_answer(guess)
@@ -64,10 +65,10 @@ class Game
 
     # will give count of number of correct colours in incorrect positions
     # flattens to prevent array of arrays
-    # TODO give feedback to player in readable manner
     feedback.push(correct_colours(guess, code))
 
     print "This is the check_answer feedback #{feedback}"
+    feedback
   end
 
   def delete_code_location_match(code, feedback)
@@ -96,15 +97,29 @@ class Game
   def correct_colours(guess, code)
     guess.filter { |x| code.include?(x) }.length
   end
-  
+
+  # unsure if working correctly, untested
   def game_over
     # end of game if go to 10 rounds
+    puts "You have made #{@round_number} guesses and failed. Codebreaker wins."\
+    "The correct code was #{@player2.read_code}"
+    new_game
   end
 
+  # unsure if working correctly, untested
+  def new_game
+    puts "Hello, would you like to play a new game of Mastermind? (yes/no)?"
+    answer = gets.chomp
+
+    until %w[yes no].include?(answer)
+      puts "Would you like to play a new game of Mastermind? (yes/no)?"
+      answer = gets.chomp
+    end
+
+    Game.new if answer == "yes"
+  end
 end
 
-
-  
 # superclass for players
 class Player
   include Codes
@@ -143,7 +158,11 @@ class HumanPlayer < Player
   end
 
   def save_feedback(guess)
-    puts "the round number is: #{@game.round_number} and guess is #{guess}"
+    puts "the round number is: #{@game.round_number}"
+    plural = guess[0].length == 1 ? "code" : "codes"
+    puts "You correctly guessed the location of #{guess[0].length} #{plural}."
+    plural = guess[1] == 1 ? "code" : "codes"
+    puts "You correctly guessed the colour of #{guess[1]} #{plural}.\n"
   end
 end
 
