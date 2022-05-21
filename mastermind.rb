@@ -11,23 +11,29 @@ class Game
     @board = Array.new(4)
     @player1 = HumanPlayer.new(self)
     @player2 = ComputerPlayer.new(self)
+    @round_number = 1
     game_turn
   end
-  attr_reader :board
+  attr_reader :board, :round_number
 
   def code_maker
     @board = Array.new(4)
     @board.map! { CODES.sample }
   end
 
-# code here isn't needed. Just a test
+# code here isn't needed. Used for debugging
   def check_code
     puts "this is the code: #{@player2.read_code}"
   end
 
   def game_turn
+    if @round_number == 10
+      game_over
+    else
     player_guess = @player1.guess_code
-    check_answer(player_guess)
+    @player1.save_feedback(check_answer(player_guess))
+    @round_number += 1
+    end    
   end
 
   def check_answer(guess)
@@ -90,6 +96,11 @@ class Game
   def correct_colours(guess, code)
     guess.filter { |x| code.include?(x) }.length
   end
+  
+  def game_over
+    # end of game if go to 10 rounds
+  end
+
 end
 
 
@@ -119,7 +130,7 @@ class HumanPlayer < Player
     puts "Please enter your guess from left to right:"
     print "Your choices are: #{CODES}\n"
     4.times do
-      choice = gets.chomp.to_s
+      choice = gets.chomp.to_s.strip
       until CODES.any?(choice)
         puts "Your choice: \"#{choice}\" is not a possible guess, please enter another guess"
         print "Possible guesses are #{CODES}\n"
@@ -129,6 +140,10 @@ class HumanPlayer < Player
     end
     print "Your guess is #{guess}.\n"
     guess
+  end
+
+  def save_feedback(guess)
+    puts "the round number is: #{@game.round_number} and guess is #{guess}"
   end
 end
 
