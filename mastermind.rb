@@ -33,6 +33,7 @@ class Game
       player_guess = @player1.guess_code
 
       @player1.save_feedback(check_answer(player_guess))
+      @player1.report_feedback
       @round_number += 1
     end
   end
@@ -135,9 +136,11 @@ class HumanPlayer < Player
     puts "Hello codebreaker, what is your name?"
     name = gets.chomp.to_s
     @name = name
+    @past_feedback = []
+    @past_guesses = []
   end
 
-  attr_reader :name
+  attr_reader :name, :past_feedback, :past_guesses
 
   def guess_code
     guess = []
@@ -154,16 +157,59 @@ class HumanPlayer < Player
       guess.push(choice)
     end
     print "Your guess is #{guess}.\n"
+    save_guess(guess)
     guess
   end
-# TODO add a function that saves feedback and can provide feedback upon request
-  def save_feedback(guess)
-    puts "the round number is: #{@game.round_number}"
-    plural = guess[0].length == 1 ? "code" : "codes"
-    puts "You correctly guessed the location of #{guess[0].length} #{plural}."
-    plural = guess[1] == 1 ? "code" : "codes"
-    puts "You correctly guessed the colour of #{guess[1]} #{plural}.\n"
+
+  def save_guess(guess=0)
+    # if no guess reported, gives past guesses, else saves guess
+    if guess == 0
+      past_guesses
+    else
+      past_guesses.push(guess)
+    end
   end
+
+  def save_feedback(guess=0)
+    # this is used to retrive past_feedback array data without adding to it
+    binding.pry
+    if guess == 0
+      past_feedback
+    else
+      past_feedback.push(guess)
+    end
+  end
+
+# TODO add a function that saves feedback and can provide feedback upon request
+  def report_feedback(round=0) # need to find a more elegant solution
+    guess = save_feedback
+    if round == 0
+      # this retrives current round guess
+      guess = save_feedback[-1]
+      puts "The round number is: #{@game.round_number}"
+      plural = guess[0].length == 1 ? "code" : "codes"
+      puts "You correctly guessed the location of #{guess[0].length} #{plural}."
+      plural = guess[1] == 1 ? "code" : "codes"
+      puts "You correctly guessed the colour of #{guess[1]} #{plural}.\n"
+    else
+      i = 1
+      guess.length.times do
+        print "In round #{i} you guessed: #{guess[i - 1]}.\n"
+        plural = guess[i -1][0].length == 1 ? "code" : "codes"
+        puts "You correctly guessed the location of #{guess[-1][0].length}"\
+        "#{plural}."
+        plural = guess[i-1][1] == 1 ? "code" : "codes"
+        puts "You correctly guessed the colour of #{guess[i - 1][1]}"\
+        "#{plural}\n"
+        i += 1
+      end
+    end
+  end
+
+  
+
+
+
 end
 
 # sets methods for the Computer
