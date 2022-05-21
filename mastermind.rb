@@ -65,10 +65,14 @@ class Game
   end
 
   def delete_code_location_match(code, feedback)
+    # deletes matches in the code where the guess was correct
+    # needed to not duplicate a check for correct colour guess
     code.delete_if.with_index { |_, index| feedback.include?(index) }
   end
 
   def delete_guess_location_match(guess, feedback)
+    # deletes matches in the guess where the guess was correct
+    # needed to not duplicate a check for correct colour guess
     guess.delete_if.with_index { |_, index| feedback.include?(index) }
   end
 
@@ -84,9 +88,7 @@ class Game
   end
 
   def correct_colours(guess, code)
-    y = guess.filter { |x| code.include?(x) }
-    print y
-    y.length
+    guess.filter { |x| code.include?(x) }.length
   end
 end
 
