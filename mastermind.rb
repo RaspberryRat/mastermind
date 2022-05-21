@@ -44,23 +44,32 @@ class Game
       return
     else
       puts "not a winner"
+      print "Code is: #{code}.\n"
     end
 
     # used to save feedback to provide to codebreaker
     feedback = []
-
     feedback.push(location_match(guess, code))
 
-    # remove the correct code guess location so can find other matches
-    code.delete_at(1)
-    guess.delete_at(1)
+    # remove the correct code & guess location so can find other matches
+    code = delete_code_location_match(code, feedback.flatten)
+    guess = delete_guess_location_match(guess, feedback.flatten)
+    puts "delete code: #{code} and guess: #{guess}\n"
 
     # will give count of number of correct colours in incorrect positions
     # flattens to prevent array of arrays
     # TODO give feedback to player in readable manner
-    feedback.push(correct_colours(guess, code)).flatten!
+    feedback.push(correct_colours(guess, code))
 
     print "This is the check_answer feedback #{feedback}"
+  end
+
+  def delete_code_location_match(code, feedback)
+    code.delete_if.with_index { |_, index| feedback.include?(index) }
+  end
+
+  def delete_guess_location_match(guess, feedback)
+    guess.delete_if.with_index { |_, index| feedback.include?(index) }
   end
 
   def location_match(guess, code)
@@ -75,7 +84,9 @@ class Game
   end
 
   def correct_colours(guess, code)
-    guess.filter { |x| code.include?(x) }.length
+    y = guess.filter { |x| code.include?(x) }
+    print y
+    y.length
   end
 end
 
