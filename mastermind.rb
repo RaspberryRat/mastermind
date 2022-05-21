@@ -156,7 +156,7 @@ class HumanPlayer < Player
     print "Your guess is #{guess}.\n"
     guess
   end
-
+# TODO add a function that saves feedback and can provide feedback upon request
   def save_feedback(guess)
     puts "the round number is: #{@game.round_number}"
     plural = guess[0].length == 1 ? "code" : "codes"
