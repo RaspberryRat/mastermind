@@ -27,14 +27,16 @@ class Game
   end
 
   def game_turn
-    if @round_number == 10
-      game_over
-    else
-      player_guess = @player1.guess_code
+    10.times do
+      if @round_number == 10
+        game_over
+      else
+        player_guess = @player1.guess_code
 
-      @player1.save_feedback(check_answer(player_guess))
-      @player1.report_feedback
-      @round_number += 1
+        @player1.save_feedback(check_answer(player_guess))
+        @player1.report_feedback
+        @round_number += 1
+      end
     end
   end
 
@@ -151,7 +153,7 @@ class HumanPlayer < Player
     while i < 4
       choice = gets.chomp.to_s.strip
       if choice == "feedback"
-        report_feedback
+        report_guesses
       else
         until CODES.any?(choice) || choice == "feedback"
           puts "Your choice: \"#{choice}\" is not a possible guess, please enter another guess"
@@ -176,9 +178,25 @@ class HumanPlayer < Player
     end
   end
 
+  def report_guesses
+    i = 1 # TODO need to fix, not working correctly when called for feedback
+    past_guesses.length.times do
+      print "In round #{i} you guessed "
+      binding.pry
+      past_guesses[i - 1].each { |g| print "#{g}, "}
+      plural = past_feedback[i -1][0].length == 1 ? "code" : "codes"
+      puts "You correctly guessed the location of "\
+      "#{past_feedback[-1][0].length} #{plural}."
+      plural = past_feedback[i-1][1] == 1 ? "code" : "codes"
+      puts "You correctly guessed the colour of #{past_feedback[i - 1][1]}"\
+      "#{plural}\n"
+      i += 1
+    end
+  end
+
+
   def save_feedback(guess=0)
     # this is used to retrive past_feedback array data without adding to it
-    binding.pry
     if guess == 0
       past_feedback
     else
@@ -188,7 +206,7 @@ class HumanPlayer < Player
 
 # TODO add a function that saves feedback and can provide feedback upon request
   def report_feedback(round=0) # need to find a more elegant solution
-    guess = save_feedback
+    guess = past_feedback
     if round == 0
       # this retrives current round guess
       guess = save_feedback[-1]
