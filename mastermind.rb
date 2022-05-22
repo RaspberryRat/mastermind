@@ -54,6 +54,7 @@ class Game
 
     # used to save feedback to provide to codebreaker
     feedback = []
+    # TODO need to check here. This doesn't seem to be reporting matches correctly.
     feedback.push(location_match(guess, code))
 
     # remove the correct code & guess location so can find other matches
