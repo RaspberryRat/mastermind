@@ -73,14 +73,22 @@ class Game
     # deletes matches in the code where the guess was correct
     # needed to not duplicate a check for correct colour guess
     binding.pry
-    code.delete_if.with_index { |_, index| feedback.include?(index) }
+    x = []
+    code.each_with_index do |item, index|
+      x.push(item) unless feedback.include?(index)
+    end
+    x
   end
 
   def delete_guess_location_match(guess, feedback)
     # deletes matches in the guess where the guess was correct
     # needed to not duplicate a check for correct colour guess
     binding.pry
-    guess.delete_if.with_index { |_, index| feedback.include?(index) }
+    x = []
+    guess.each_with_index do |item, index|
+      x.push(item) unless feedback.include?(index)
+    end
+    x
   end
 
   def location_match(guess, code)
