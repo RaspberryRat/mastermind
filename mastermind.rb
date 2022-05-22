@@ -32,8 +32,9 @@ class Game
         game_over
       else
         player_guess = @player1.guess_code
-
-        @player1.save_feedback(check_answer(player_guess))
+        binding.pry
+        check_answer(player_guess)
+        @player1.save_feedback(player_guess)
         @player1.report_feedback
         @round_number += 1
       end
@@ -41,17 +42,11 @@ class Game
   end
 
   def check_answer(guess)
-    # retrieve current answer code
-    # is guess equal to code, if yes, return winner
-    # loop through each index in guess, and check if same as answer, if yes same to another array
-    # somehow, remove that choice from next check
-    # next check each one that is not the same if it is included in answer
-    # if yes move to second array
-    # provide feedback from both arrays
+    binding.pry
     code = @player2.read_code
     if code == guess
       puts "WINNER!"
-      return
+      return game_over_winner
     else
       puts "not a winner"
       print "Code is: #{code}.\n"
@@ -77,16 +72,19 @@ class Game
   def delete_code_location_match(code, feedback)
     # deletes matches in the code where the guess was correct
     # needed to not duplicate a check for correct colour guess
+    binding.pry
     code.delete_if.with_index { |_, index| feedback.include?(index) }
   end
 
   def delete_guess_location_match(guess, feedback)
     # deletes matches in the guess where the guess was correct
     # needed to not duplicate a check for correct colour guess
+    binding.pry
     guess.delete_if.with_index { |_, index| feedback.include?(index) }
   end
 
   def location_match(guess, code)
+    binding.pry
     correct_guess_index = []
     # check if same spot
     guess.zip(code).each_with_index do |pair, index|
@@ -98,14 +96,23 @@ class Game
   end
 
   def correct_colours(guess, code)
+    binding.pry
     guess.filter { |x| code.include?(x) }.length
   end
 
   # unsure if working correctly, untested
   def game_over
     # end of game if go to 10 rounds
-    puts "You have made #{@round_number} guesses and failed. Codebreaker wins."\
-    "The correct code was #{@player2.read_code}"
+    puts "\n\nYou have made #{@round_number} guesses and failed. Codemaker "\
+    "wins.\n The correct code was #{@player2.read_code}"
+    new_game
+  end
+
+  # unsure if working correctly, untested
+  def game_over_winner
+    # end of game if codebreked guesses code
+    puts "\n\nYou have made #{@round_number} guesses and won! Codebreaker wins"\
+    ". \nThe correct code was #{@player2.read_code}"
     new_game
   end
 
@@ -152,10 +159,11 @@ class HumanPlayer < Player
     i = 0
     while i < 4
       choice = gets.chomp.to_s.strip
-      if choice == "feedback"
-        report_guesses
-      else
-        until CODES.any?(choice) || choice == "feedback"
+        until CODES.any?(choice)
+          if choice == "feedback"
+            report_guesses
+            choice = gets.chomp.to_s
+          else
           puts "Your choice: \"#{choice}\" is not a possible guess, please enter another guess"
           print "Possible guesses are #{CODES}\n"
           choice = gets.chomp.to_s
@@ -166,50 +174,41 @@ class HumanPlayer < Player
     end
     print "Your guess is #{guess}.\n"
     save_guess(guess)
+    binding.pry
     guess
   end
 
-  def save_guess(guess=0)
-    # if no guess reported, gives past guesses, else saves guess
-    if guess == 0
-      past_guesses
-    else
-      past_guesses.push(guess)
-    end
+  def save_guess(guess)
+    past_guesses.push(guess)
+    binding.pry
   end
 
+    # TODO need to fix, not working correctly when called for feedback
+
   def report_guesses
-    i = 1 # TODO need to fix, not working correctly when called for feedback
+    i = 1
     past_guesses.length.times do
-      print "In round #{i} you guessed "
-      binding.pry
+      print "\n\nIn round #{i} you guessed "
       past_guesses[i - 1].each { |g| print "#{g}, "}
-      plural = past_feedback[i -1][0].length == 1 ? "code" : "codes"
-      puts "You correctly guessed the location of "\
+      plural = past_feedback[i - 1][0].length == 1 ? "code" : "codes"
+      puts "\nYou correctly guessed the location of "\
       "#{past_feedback[-1][0].length} #{plural}."
       plural = past_feedback[i-1][1] == 1 ? "code" : "codes"
       puts "You correctly guessed the colour of #{past_feedback[i - 1][1]}"\
-      "#{plural}\n"
+      " #{plural}\n"
       i += 1
     end
   end
 
-
-  def save_feedback(guess=0)
-    # this is used to retrive past_feedback array data without adding to it
-    if guess == 0
-      past_feedback
-    else
-      past_feedback.push(guess)
-    end
+  def save_feedback(guess)
+    past_feedback.push(guess)
   end
 
 # TODO add a function that saves feedback and can provide feedback upon request
   def report_feedback(round=0) # need to find a more elegant solution
-    guess = past_feedback
     if round == 0
       # this retrives current round guess
-      guess = save_feedback[-1]
+      guess = past_feedback[-1]
       puts "The round number is: #{@game.round_number}"
       plural = guess[0].length == 1 ? "code" : "codes"
       puts "You correctly guessed the location of #{guess[0].length} #{plural}."
@@ -229,11 +228,6 @@ class HumanPlayer < Player
       end
     end
   end
-
-  
-
-
-
 end
 
 # sets methods for the Computer
