@@ -147,14 +147,20 @@ class HumanPlayer < Player
     puts "#{name} it is your turn to guess"
     puts "Please enter your guess from left to right:"
     print "Your choices are: #{CODES}\n"
-    4.times do
+    i = 0
+    while i < 4
       choice = gets.chomp.to_s.strip
-      until CODES.any?(choice)
-        puts "Your choice: \"#{choice}\" is not a possible guess, please enter another guess"
-        print "Possible guesses are #{CODES}\n"
-        choice = gets.chomp.to_s
+      if choice == "feedback"
+        report_feedback
+      else
+        until CODES.any?(choice) || choice == "feedback"
+          puts "Your choice: \"#{choice}\" is not a possible guess, please enter another guess"
+          print "Possible guesses are #{CODES}\n"
+          choice = gets.chomp.to_s
+        end
       end
       guess.push(choice)
+      i += 1
     end
     print "Your guess is #{guess}.\n"
     save_guess(guess)
