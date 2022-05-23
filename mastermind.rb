@@ -32,9 +32,8 @@ class Game
         game_over
       else
         player_guess = @player1.guess_code
-        binding.pry
-        check_answer(player_guess)
-        @player1.save_feedback(player_guess)
+        #binding.pry
+        @player1.save_feedback(check_answer(player_guess))
         @player1.report_feedback
         @round_number += 1
       end
@@ -42,7 +41,7 @@ class Game
   end
 
   def check_answer(guess)
-    binding.pry
+    #binding.pry
     code = @player2.read_code
     if code == guess
       puts "WINNER!"
@@ -73,7 +72,7 @@ class Game
   def delete_code_location_match(code, feedback)
     # deletes matches in the code where the guess was correct
     # needed to not duplicate a check for correct colour guess
-    binding.pry
+    #binding.pry
     x = []
     code.each_with_index do |item, index|
       x.push(item) unless feedback.include?(index)
@@ -84,7 +83,7 @@ class Game
   def delete_guess_location_match(guess, feedback)
     # deletes matches in the guess where the guess was correct
     # needed to not duplicate a check for correct colour guess
-    binding.pry
+    #binding.pry
     x = []
     guess.each_with_index do |item, index|
       x.push(item) unless feedback.include?(index)
@@ -93,7 +92,7 @@ class Game
   end
 
   def location_match(guess, code)
-    binding.pry
+    #binding.pry
     correct_guess_index = []
     # check if same spot
     guess.zip(code).each_with_index do |pair, index|
@@ -105,7 +104,7 @@ class Game
   end
 
   def correct_colours(guess, code)
-    binding.pry
+    #binding.pry
     guess.filter { |x| code.include?(x) }.length
   end
 
@@ -162,9 +161,9 @@ class HumanPlayer < Player
 
   def guess_code
     guess = []
-    puts "#{name} it is your turn to guess"
-    puts "Please enter your guess from left to right:"
-    print "Your choices are: #{CODES}\n"
+    puts "\n\n#{name} it is your turn to guess"
+    puts "\nPlease enter your guess from left to right:"
+    print "\nYour choices are: #{CODES}\n"
     i = 0
     while i < 4
       choice = gets.chomp.to_s.strip
@@ -183,16 +182,14 @@ class HumanPlayer < Player
     end
     print "Your guess is #{guess}.\n"
     save_guess(guess)
-    binding.pry
+    #binding.pry
     guess
   end
 
   def save_guess(guess)
     past_guesses.push(guess)
-    binding.pry
+    #binding.pry
   end
-
-    # TODO need to fix, not working correctly when called for feedback
 
   def report_guesses
     i = 1
@@ -213,7 +210,6 @@ class HumanPlayer < Player
     past_feedback.push(guess)
   end
 
-# TODO add a function that saves feedback and can provide feedback upon request
   def report_feedback(round=0) # need to find a more elegant solution
     if round == 0
       # this retrives current round guess
