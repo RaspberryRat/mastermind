@@ -45,7 +45,7 @@ class Game
     code = @player2.read_code
     if code == guess
       puts "WINNER!"
-      return game_over_winner
+      return game_over_winner # TODO need to fix, currently continues back to game_turn after this if user chooses no
     else
       puts "not a winner"
       print "Code is: #{code}.\n"
@@ -53,7 +53,6 @@ class Game
 
     # used to save feedback to provide to codebreaker
     feedback = []
-    # TODO need to check here. This doesn't seem to be reporting matches correctly.
     feedback.push(location_match(guess, code))
 
     # remove the correct code & guess location so can find other matches
@@ -134,7 +133,8 @@ class Game
       answer = gets.chomp
     end
 
-    Game.new if answer == "yes"
+    answer == "yes" ? Game.new : exit
+    #Game.new if answer == "yes"
   end
 end
 
