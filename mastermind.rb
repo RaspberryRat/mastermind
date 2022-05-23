@@ -9,13 +9,30 @@ class Game
   include Codes
   def initialize
     @board = Array.new(4)
-    @player1 = HumanPlayer.new(self)
-    @player2 = ComputerPlayer.new(self)
+    if codemaker_or_breaker?
+      @player1 = CodeMaker.new(self)
+      @player2 = ComputerPlayer.new(self, "codebreaker")
+    else
+      @player1 = CodeBreaker.new(self)
+      @player2 = ComputerPlayer.new(self, "codemaker")
+    end
     puts "\nYou have 10 rounds to break the code."
     @round_number = 1
     game_turn
   end
   attr_reader :board, :round_number
+
+  def codemaker_or_breaker?
+    puts "\nDo you want to be the CodeMaker or the CodeBreaker?"
+    answer = gets.chomp.strip.downcase
+
+    until %w[codemaker codebreaker].include?(answer)
+      puts "You have to choose a role...\n"
+      puts "\nDo you want to be the CodeMaker or the CodeBreaker?"
+      answer = gets.chomp
+    end
+    answer == "codemaker" ? true : false
+  end
 
   def code_maker
     @board = Array.new(4)
@@ -134,13 +151,13 @@ end
 # superclass for players
 class Player
   include Codes
-  def initialize(game)
+  def initialize(game, role = nil)
     @game = game
   end
 end
 
-# methods for humanplayer
-class HumanPlayer < Player
+# methods for humanplayer chooses codebreaker
+class CodeBreaker < Player
   def initialize(game)
     super
     puts "\nHello codebreaker, what is your name?"
@@ -229,10 +246,14 @@ end
 
 # sets methods for the Computer
 class ComputerPlayer < Player
-  def initialize(game)
+  def initialize(game, role)
     super
-    @current_code = create_code
-    p read_code
+    if role == "codemaker"
+      @current_code = create_code
+      p read_code
+    else
+      puts "Comptuer is the codebreaker!"
+    end
   end
 
   def create_code
@@ -242,6 +263,11 @@ class ComputerPlayer < Player
   def read_code
     @current_code
   end
+end
+
+# class when human chooses codebreaker
+class CodeMaker < Player
+  puts "You are the codemaker!"
 end
 
 Game.new
