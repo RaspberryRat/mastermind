@@ -11,6 +11,7 @@ class Game
     @board = Array.new(4)
     @player1 = HumanPlayer.new(self)
     @player2 = ComputerPlayer.new(self)
+    puts "\nYou have 10 rounds to break the code."
     @round_number = 1
     game_turn
   end
@@ -44,11 +45,10 @@ class Game
     #binding.pry
     code = @player2.read_code
     if code == guess
-      puts "WINNER!"
-      return game_over_winner # TODO need to fix, currently continues back to game_turn after this if user chooses no
+      puts "\n\n**\nWINNER!\n**\n"
+      return game_over_winner
     else
-      puts "not a winner"
-      print "Code is: #{code}.\n"
+      puts "\nYour guess is incorrect."
     end
 
     # used to save feedback to provide to codebreaker
@@ -58,13 +58,10 @@ class Game
     # remove the correct code & guess location so can find other matches
     code = delete_code_location_match(code, feedback.flatten)
     guess = delete_guess_location_match(guess, feedback.flatten)
-    puts "delete code: #{code} and guess: #{guess}\n"
 
     # will give count of number of correct colours in incorrect positions
     # flattens to prevent array of arrays
     feedback.push(correct_colours(guess, code))
-
-    print "This is the check_answer feedback #{feedback}"
     feedback
   end
 
@@ -72,22 +69,22 @@ class Game
     # deletes matches in the code where the guess was correct
     # needed to not duplicate a check for correct colour guess
     #binding.pry
-    x = []
+    not_guessed_code = []
     code.each_with_index do |item, index|
-      x.push(item) unless feedback.include?(index)
+      not_guessed_code.push(item) unless feedback.include?(index)
     end
-    x
+    not_guessed_code
   end
 
   def delete_guess_location_match(guess, feedback)
     # deletes matches in the guess where the guess was correct
     # needed to not duplicate a check for correct colour guess
     #binding.pry
-    x = []
+    incorrect_match_guesses = []
     guess.each_with_index do |item, index|
-      x.push(item) unless feedback.include?(index)
+      incorrect_match_guesses.push(item) unless feedback.include?(index)
     end
-    x
+    incorrect_match_guesses
   end
 
   def location_match(guess, code)
@@ -107,7 +104,6 @@ class Game
     guess.filter { |x| code.include?(x) }.length
   end
 
-  # unsure if working correctly, untested
   def game_over
     # end of game if go to 10 rounds
     puts "\n\nYou have made #{@round_number} guesses and failed. Codemaker "\
@@ -115,7 +111,6 @@ class Game
     new_game
   end
 
-  # unsure if working correctly, untested
   def game_over_winner
     # end of game if codebreked guesses code
     puts "\n\nYou have made #{@round_number} guesses and won! Codebreaker wins"\
@@ -123,18 +118,16 @@ class Game
     new_game
   end
 
-  # unsure if working correctly, untested
   def new_game
-    puts "Hello, would you like to play a new game of Mastermind? (yes/no)?"
+    puts "\n\nHello, would you like to play a new game of Mastermind? (yes/no)?"
     answer = gets.chomp
 
     until %w[yes no].include?(answer)
-      puts "Would you like to play a new game of Mastermind? (yes/no)?"
+      puts "\nWould you like to play a new game of Mastermind? (yes/no)?"
       answer = gets.chomp
     end
 
     answer == "yes" ? Game.new : exit
-    #Game.new if answer == "yes"
   end
 end
 
@@ -150,7 +143,7 @@ end
 class HumanPlayer < Player
   def initialize(game)
     super
-    puts "Hello codebreaker, what is your name?"
+    puts "\nHello codebreaker, what is your name?"
     name = gets.chomp.to_s
     @name = name
     @past_feedback = []
@@ -161,9 +154,9 @@ class HumanPlayer < Player
 
   def guess_code
     guess = []
-    puts "\n\n#{name} it is your turn to guess"
-    puts "\nPlease enter your guess from left to right:"
+    puts "\n\n#{name}, it is round ##{@game.round_number}. It is your turn to guess."
     print "\nYour choices are: #{CODES}\n"
+    puts "\nPlease enter your guess from left to right:"
     i = 0
     while i < 4
       choice = gets.chomp.to_s.strip
@@ -172,7 +165,7 @@ class HumanPlayer < Player
             report_guesses
             choice = gets.chomp.to_s
           else
-          puts "Your choice: \"#{choice}\" is not a possible guess, please enter another guess"
+          puts "\nYour choice: \"#{choice}\" is not a possible guess, please enter another guess.\n"
           print "Possible guesses are #{CODES}\n"
           choice = gets.chomp.to_s
         end
@@ -180,7 +173,7 @@ class HumanPlayer < Player
       guess.push(choice)
       i += 1
     end
-    print "Your guess is #{guess}.\n"
+    print "\n\nYou guessed: #{guess}.\n"
     save_guess(guess)
     #binding.pry
     guess
@@ -214,15 +207,14 @@ class HumanPlayer < Player
     if round == 0
       # this retrives current round guess
       guess = past_feedback[-1]
-      puts "The round number is: #{@game.round_number}"
       plural = guess[0].length == 1 ? "code" : "codes"
-      puts "You correctly guessed the location of #{guess[0].length} #{plural}."
+      puts "\nYou correctly guessed the location of #{guess[0].length} #{plural}."
       plural = guess[1] == 1 ? "code" : "codes"
-      puts "You correctly guessed the colour of #{guess[1]} #{plural}.\n"
+      puts "\nYou correctly guessed the colour of #{guess[1]} #{plural}.\n"
     else
       i = 1
       guess.length.times do
-        print "In round #{i} you guessed: #{guess[i - 1]}.\n"
+        print "\nIn round #{i} you guessed: #{guess[i - 1]}.\n"
         plural = guess[i -1][0].length == 1 ? "code" : "codes"
         puts "You correctly guessed the location of #{guess[-1][0].length}"\
         "#{plural}."
