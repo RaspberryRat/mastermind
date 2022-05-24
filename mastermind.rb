@@ -306,18 +306,13 @@ class ComputerPlayer < Player
 
   def guess_code
     puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
+    binding.pry
     if @game.round_number == 1
-      guess = [1, 1, 2, 2]
+      guess = [1, 1, 1, 1]
     else
       round = @game.round_number
-      prev_round_correct = past_feedback[round - 2][0].length.to_i + past_feedback[round - 2][1].to_i
-      puts "the computer got #{prev_round_correct} last round."
-      guess = []
-      if prev_round_correct > 0
-        guess = past_guesses[round - 2].sample(prev_round_correct) + CODES.sample(4 - prev_round_correct)
-      else
-        guess = CODES.sample(4)
-      end
+      puts possible_guesses[0]
+      binding.pry
     end
     guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; }
@@ -382,7 +377,23 @@ class ComputerPlayer < Player
     round = @game.round_number
     current_guess = colours_to_numbers(past_guesses[round - 1])
     puts "This is the current guess: #{current_guess}"
+    current_feedback = past_feedback[round - 1][0].length
+    update_guesses(current_feedback, current_guess)
     binding.pry
+  end
+
+  def update_guesses(feedback, guess)
+    if feedback == 0
+      i = 0
+      guess.length.times do
+        g = guess[i]
+        possible_guesses.delete_if { |num| num.any?(g) }
+        i += 1
+      end
+    else
+      fdf
+
+    end
   end
 end
 
