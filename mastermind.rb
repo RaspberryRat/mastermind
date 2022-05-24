@@ -13,15 +13,17 @@ class Game
     if codemaker_or_breaker?
       @player1 = CodeMaker.new(self)
       @player2 = ComputerPlayer.new(self, "codebreaker")
+      @check_role = "codemaker"
       game_turn_codemaker
     else
       @player1 = CodeBreaker.new(self)
       @player2 = ComputerPlayer.new(self, "codemaker")
+      @check_role = "codebreaker"
       puts "\nYou have 10 rounds to break the code."
       game_turn_codebreaker
     end
   end
-  attr_reader :board, :round_number
+  attr_reader :board, :round_number, :check_role
 
   def codemaker_or_breaker?
     puts "\nDo you want to be the CodeMaker or the CodeBreaker?"
@@ -63,6 +65,7 @@ class Game
         game_over_computer
       else
         computer_guess = @player2.guess_code
+        @player2.save_feedback(check_answer(computer_guess))
         @round_number += 1
 
       end
@@ -70,10 +73,14 @@ class Game
   end
 
   def check_answer(guess)
-    code = @player2.read_code
+    code = board
     if code == guess
       puts "\n\n**\nWINNER!\n**\n"
+      if @check_role == "codebreaker"
       return game_over_winner
+      else
+        return game_over_computer_wins
+      end
     else
       puts "\nYour guess is incorrect."
     end
