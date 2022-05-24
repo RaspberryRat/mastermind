@@ -2,6 +2,8 @@ require "pry-byebug"
 
 module Codes
   CODES = %w[red green blue yellow brown orange black white].freeze
+  code_as_numbers = []
+  CODES.each_with_index { |x, ind| code_as_numbers.push(ind + 1) }
 end
 
 module Breakables
@@ -321,6 +323,11 @@ class ComputerPlayer < Player
     save_guess(guess)
     guess
   end
+
+  def create_permutations
+    possible_guesses = []
+    # generates all possible code permutations
+    code_as_numbers.repeated_permutation(4) { |p| code_as_numbers.push(p) }
 end
 
 # class when human chooses codebreaker
