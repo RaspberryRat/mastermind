@@ -34,9 +34,8 @@ class Game
     answer == "codemaker" ? true : false
   end
 
-  def code_maker
-    @board = Array.new(4)
-    @board.map! { CODES.sample }
+  def code_maker(colour_code)
+    @board = colour_code
   end
 
   # code here isn't needed. Used for debugging
@@ -50,7 +49,6 @@ class Game
         game_over
       else
         player_guess = @player1.guess_code
-        #binding.pry
         @player1.save_feedback(check_answer(player_guess))
         @player1.report_feedback
         @round_number += 1
@@ -59,7 +57,6 @@ class Game
   end
 
   def check_answer(guess)
-    #binding.pry
     code = @player2.read_code
     if code == guess
       puts "\n\n**\nWINNER!\n**\n"
@@ -85,7 +82,6 @@ class Game
   def delete_code_location_match(code, feedback)
     # deletes matches in the code where the guess was correct
     # needed to not duplicate a check for correct colour guess
-    #binding.pry
     not_guessed_code = []
     code.each_with_index do |item, index|
       not_guessed_code.push(item) unless feedback.include?(index)
@@ -96,7 +92,6 @@ class Game
   def delete_guess_location_match(guess, feedback)
     # deletes matches in the guess where the guess was correct
     # needed to not duplicate a check for correct colour guess
-    #binding.pry
     incorrect_match_guesses = []
     guess.each_with_index do |item, index|
       incorrect_match_guesses.push(item) unless feedback.include?(index)
@@ -105,7 +100,6 @@ class Game
   end
 
   def location_match(guess, code)
-    #binding.pry
     correct_guess_index = []
     # check if same spot
     guess.zip(code).each_with_index do |pair, index|
@@ -117,7 +111,6 @@ class Game
   end
 
   def correct_colours(guess, code)
-    #binding.pry
     guess.filter { |x| code.include?(x) }.length
   end
 
@@ -192,13 +185,11 @@ class CodeBreaker < Player
     end
     print "\n\nYou guessed: #{guess}.\n"
     save_guess(guess)
-    #binding.pry
     guess
   end
 
   def save_guess(guess)
     past_guesses.push(guess)
-    #binding.pry
   end
 
   def report_guesses
@@ -257,7 +248,8 @@ class ComputerPlayer < Player
   end
 
   def create_code
-    @game.code_maker
+    # makes array of 4 random colours from CODES
+    @game.code_maker(CODES.sample(4))
   end
 
   def read_code
@@ -268,6 +260,10 @@ end
 # class when human chooses codebreaker
 class CodeMaker < Player
   puts "You are the codemaker!"
+  def initialize
+    super
+    
+  end
 end
 
 Game.new
