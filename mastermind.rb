@@ -260,9 +260,32 @@ end
 # class when human chooses codebreaker
 class CodeMaker < Player
   puts "You are the codemaker!"
-  def initialize
+  def initialize(game)
     super
-    
+    @current_code = create_code
+  end
+
+  def create_code
+    puts "Choose the secret code..."
+    p CODES
+    secret_code = []
+    i = 0
+    while i < 4
+      new_code = gets.chomp.to_s.strip
+        until CODES.any?(new_code)
+          if new_code == "feedback"
+            report_guesses
+            new_code = gets.chomp.to_s
+          else
+          puts "\nYour choice: \"#{new_code}\" is not a possible code, please enter another colour.\n"
+          print "Possible colours are #{CODES}\n"
+          new_code = gets.chomp.to_s
+        end
+      end
+      secret_code.push(new_code)
+      i += 1
+    end
+    @game.code_maker(secret_code)
   end
 end
 
