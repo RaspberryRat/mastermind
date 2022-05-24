@@ -132,7 +132,8 @@ class Game
         return game_over_computer_wins
       end
     else
-      puts "\nYour guess is incorrect."
+      role = @check_role == "codebreaker" ? "You" : "The computer"
+      puts "\n#{role} guess is incorrect."
     end
 
     # used to save feedback to provide to codebreaker
@@ -171,6 +172,7 @@ class Game
 
   def location_match(guess, code)
     correct_guess_index = []
+    binding.pry
     # check if same spot
     guess.zip(code).each_with_index do |pair, index|
       if pair[0] == pair[1]
@@ -276,18 +278,20 @@ end
 
 # sets methods for the Computer
 class ComputerPlayer < Player
+  include Breakables
   def initialize(game, role)
     super
     if role == "codemaker"
       @current_code = create_code
       p read_code
     else
-      include Breakables
       puts "Comptuer is the codebreaker!"
       @past_feedback = []
       @past_guesses = []
     end
   end
+
+  attr_reader :past_feedback, :past_guesses
 
   def create_code
     # makes array of 4 random colours from CODES
@@ -305,7 +309,10 @@ class ComputerPlayer < Player
       guess.each { |x| puts "#{x}" }
       guess
     else
-      puts "Round #2"
+      round = @game.round_number
+      prev_round_correct = past_feedback[round - 2][0].length.to_i + past_feedback[round - 2][1].to_i
+      puts "the computer got #{prev_round_correct} last round."
+      binding.pry
     end
   end
 end
