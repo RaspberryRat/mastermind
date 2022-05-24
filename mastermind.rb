@@ -172,7 +172,6 @@ class Game
 
   def location_match(guess, code)
     correct_guess_index = []
-    binding.pry
     # check if same spot
     guess.zip(code).each_with_index do |pair, index|
       if pair[0] == pair[1]
@@ -306,14 +305,21 @@ class ComputerPlayer < Player
     puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
     if @game.round_number == 1
       guess = CODES.sample(4)
-      guess.each { |x| puts "#{x}" }
-      guess
     else
       round = @game.round_number
       prev_round_correct = past_feedback[round - 2][0].length.to_i + past_feedback[round - 2][1].to_i
       puts "the computer got #{prev_round_correct} last round."
-      binding.pry
+      guess = []
+      if prev_round_correct > 0
+        guess = past_guesses[round - 2].sample(prev_round_correct) + CODES.sample(4 - prev_round_correct)
+      else
+        guess = CODES.sample(4)
+      end
     end
+    guess = guess.shuffle
+    guess.each { |x| puts "#{x}"; }
+    save_guess(guess)
+    guess
   end
 end
 
