@@ -289,10 +289,13 @@ class ComputerPlayer < Player
       puts "Comptuer is the codebreaker!"
       @past_feedback = []
       @past_guesses = []
+      @possible_guesses
+      create_permutations
+      puts "#{possible_guesses}"
     end
   end
 
-  attr_reader :past_feedback, :past_guesses
+  attr_reader :past_feedback, :past_guesses, :possible_guesses
 
   def create_code
     # makes array of 4 random colours from CODES
@@ -325,7 +328,6 @@ class ComputerPlayer < Player
   end
 
   def create_permutations
-    possible_guesses = []
     # generates all possible code permutations
     code_as_numbers.repeated_permutation(4) { |p| code_as_numbers.push(p) }
   end
