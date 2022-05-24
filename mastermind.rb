@@ -61,6 +61,13 @@ class Game
     10.times do
       if @round_number == 10
         game_over_computer
+      else
+        computer_guess = @player2.guess_code
+        @round_number += 1
+
+      end
+    end
+  end
 
   def check_answer(guess)
     code = @player2.read_code
@@ -272,6 +279,17 @@ class ComputerPlayer < Player
 
   def read_code
     @current_code
+  end
+
+  def guess_code
+    puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
+    if @game.round_number == 1
+      guess = CODES.sample(4)
+      guess.each { |x| puts "#{x}" }
+      guess
+    else
+      puts "Round #2"
+    end
   end
 end
 
