@@ -12,6 +12,46 @@ module Breakables
   def save_feedback(guess)
     past_feedback.push(guess)
   end
+
+  def report_guesses
+    i = 1
+    role = @game.check_role == "codebreaker" ? "You" : "The computer"
+    past_guesses.length.times do
+      print "\n\nIn round #{i} #{role.downcase} guessed "
+      past_guesses[i - 1].each { |g| print "#{g}, " }
+      plural = past_feedback[i - 1][0].length == 1 ? "code" : "codes"
+      puts "\n#{role} correctly guessed the location of "\
+      "#{past_feedback[-1][0].length} #{plural}."
+      plural = past_feedback[i - 1][1] == 1 ? "code" : "codes"
+      puts "#{role} correctly guessed the colour of #{past_feedback[i - 1][1]}"\
+      " #{plural}\n"
+      i += 1
+    end
+  end
+
+  def report_feedback(round=0) # need to find a more elegant solution
+    if round == 0
+      # this retrives current round guess
+      guess = past_feedback[-1]
+      plural = guess[0].length == 1 ? "code" : "codes"
+      role = @game.check_role == "codebreaker" ? "You" : "The computer"
+      puts "\n#{role} correctly guessed the location of #{guess[0].length} #{plural}."
+      plural = guess[1] == 1 ? "code" : "codes"
+      puts "\n#{role} correctly guessed the colour of #{guess[1]} #{plural}.\n"
+    else
+      i = 1
+      guess.length.times do
+        print "\nIn round #{i} #{role.downcase} guessed: #{guess[i - 1]}.\n"
+        plural = guess[i - 1][0].length == 1 ? "code" : "codes"
+        puts "#{role} correctly guessed the location of #{guess[-1][0].length}"\
+        "#{plural}."
+        plural = guess[i - 1][1] == 1 ? "code" : "codes"
+        puts "#{role} correctly guessed the colour of #{guess[i - 1][1]}"\
+        "#{plural}\n"
+        i += 1
+      end
+    end
+  end
 end
 
 # contians the game logic
@@ -231,43 +271,7 @@ class CodeBreaker < Player
     guess
   end
 
-  def report_guesses
-    i = 1
-    past_guesses.length.times do
-      print "\n\nIn round #{i} you guessed "
-      past_guesses[i - 1].each { |g| print "#{g}, "}
-      plural = past_feedback[i - 1][0].length == 1 ? "code" : "codes"
-      puts "\nYou correctly guessed the location of "\
-      "#{past_feedback[-1][0].length} #{plural}."
-      plural = past_feedback[i-1][1] == 1 ? "code" : "codes"
-      puts "You correctly guessed the colour of #{past_feedback[i - 1][1]}"\
-      " #{plural}\n"
-      i += 1
-    end
-  end
-
-  def report_feedback(round=0) # need to find a more elegant solution
-    if round == 0
-      # this retrives current round guess
-      guess = past_feedback[-1]
-      plural = guess[0].length == 1 ? "code" : "codes"
-      puts "\nYou correctly guessed the location of #{guess[0].length} #{plural}."
-      plural = guess[1] == 1 ? "code" : "codes"
-      puts "\nYou correctly guessed the colour of #{guess[1]} #{plural}.\n"
-    else
-      i = 1
-      guess.length.times do
-        print "\nIn round #{i} you guessed: #{guess[i - 1]}.\n"
-        plural = guess[i -1][0].length == 1 ? "code" : "codes"
-        puts "You correctly guessed the location of #{guess[-1][0].length}"\
-        "#{plural}."
-        plural = guess[i-1][1] == 1 ? "code" : "codes"
-        puts "You correctly guessed the colour of #{guess[i - 1][1]}"\
-        "#{plural}\n"
-        i += 1
-      end
-    end
-  end
+ 
 end
 
 # sets methods for the Computer
