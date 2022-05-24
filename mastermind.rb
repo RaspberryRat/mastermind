@@ -9,16 +9,17 @@ class Game
   include Codes
   def initialize
     @board = Array.new(4)
+    @round_number = 1
     if codemaker_or_breaker?
       @player1 = CodeMaker.new(self)
       @player2 = ComputerPlayer.new(self, "codebreaker")
+      game_turn_codemaker
     else
       @player1 = CodeBreaker.new(self)
       @player2 = ComputerPlayer.new(self, "codemaker")
+      puts "\nYou have 10 rounds to break the code."
+      game_turn_codebreaker
     end
-    puts "\nYou have 10 rounds to break the code."
-    @round_number = 1
-    game_turn
   end
   attr_reader :board, :round_number
 
@@ -43,7 +44,7 @@ class Game
     puts "this is the code: #{@player2.read_code}"
   end
 
-  def game_turn
+  def game_turn_codebreaker
     10.times do
       if @round_number == 10
         game_over
@@ -55,6 +56,11 @@ class Game
       end
     end
   end
+
+  def game_turn_codemaker
+    10.times do
+      if @round_number == 10
+        game_over_computer
 
   def check_answer(guess)
     code = @player2.read_code
@@ -138,6 +144,18 @@ class Game
     end
 
     answer == "yes" ? Game.new : exit
+  end
+
+  def game_over_computer
+    # end of game if computer fails to win as codebreaker
+    puts "\n\nThe computer has failed to break your code after #{@round_number} rounds! You are a brilliant codemaker."
+    new_game
+  end
+
+  def game_over_computer_wins
+    # game over if computer wins
+    puts "\n\nThe computer has broken your code after #{@round_number}. You have failed as a codemaker."
+    new_game
   end
 end
 
