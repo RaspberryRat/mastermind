@@ -4,6 +4,16 @@ module Codes
   CODES = %w[red green blue yellow brown orange black white].freeze
 end
 
+module Breakables
+  def save_guess(guess)
+    past_guesses.push(guess)
+  end
+
+  def save_feedback(guess)
+    past_feedback.push(guess)
+  end
+end
+
 # contians the game logic
 class Game
   include Codes
@@ -183,6 +193,7 @@ end
 
 # methods for humanplayer chooses codebreaker
 class CodeBreaker < Player
+  include Breakables
   def initialize(game)
     super
     puts "\nHello codebreaker, what is your name?"
@@ -220,10 +231,6 @@ class CodeBreaker < Player
     guess
   end
 
-  def save_guess(guess)
-    past_guesses.push(guess)
-  end
-
   def report_guesses
     i = 1
     past_guesses.length.times do
@@ -237,10 +244,6 @@ class CodeBreaker < Player
       " #{plural}\n"
       i += 1
     end
-  end
-
-  def save_feedback(guess)
-    past_feedback.push(guess)
   end
 
   def report_feedback(round=0) # need to find a more elegant solution
@@ -275,7 +278,10 @@ class ComputerPlayer < Player
       @current_code = create_code
       p read_code
     else
+      include Breakables
       puts "Comptuer is the codebreaker!"
+      @past_feedback = []
+      @past_guesses = []
     end
   end
 
