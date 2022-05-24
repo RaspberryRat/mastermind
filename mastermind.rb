@@ -116,6 +116,7 @@ class Game
       else
         computer_guess = @player2.guess_code
         @player2.save_feedback(check_answer(computer_guess))
+        @player2.evaluate_guess
         @round_number += 1
 
       end
@@ -271,8 +272,6 @@ class CodeBreaker < Player
     save_guess(guess)
     guess
   end
-
- 
 end
 
 # sets methods for the Computer
@@ -291,8 +290,6 @@ class ComputerPlayer < Player
       @code_as_numbers = []
       convert_code_to_numbers
       create_permutations
-      puts "#{possible_guesses}"
-      binding.pry
     end
   end
 
@@ -323,7 +320,6 @@ class ComputerPlayer < Player
       end
     end
     guess = numbers_to_colours(guess)
-    binding.pry
     guess.each { |x| puts "#{x}"; }
     save_guess(guess)
     guess
@@ -356,9 +352,37 @@ class ComputerPlayer < Player
     colour_code
   end
 
+  def colours_to_numbers(colour_code)
+    i = 0
+    num_code = []
+    colour_code.length.times do
+      index = colour_code[i]
+      num = case index
+      when "red" then 1
+      when "green" then 2
+      when "blue" then 2
+      when "yellow" then 4
+      when "brown" then 5
+      when "orange" then 6
+      when "black" then 7
+      when "white" then 8
+      end
+      num_code.push(num)
+      i += 1
+    end
+    num_code
+  end
+
   def convert_code_to_numbers
     CODES.each_with_index { |x, ind| code_as_numbers.push(ind + 1) }
     code_as_numbers
+  end
+
+  def evaluate_guess
+    round = @game.round_number
+    current_guess = colours_to_numbers(past_guesses[round - 1])
+    puts "This is the current guess: #{current_guess}"
+    binding.pry
   end
 end
 
