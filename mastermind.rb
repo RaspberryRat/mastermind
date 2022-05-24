@@ -328,6 +328,26 @@ class ComputerPlayer < Player
     possible_guesses = []
     # generates all possible code permutations
     code_as_numbers.repeated_permutation(4) { |p| code_as_numbers.push(p) }
+  end
+
+  # untested method
+  def numbers_to_colours(num_code)
+    i = 0
+    colour_code = []
+    num_code.length do
+      index = num_code[i]
+      case index
+      when 1 then "red"
+      when 2 then "green"
+      when 3 then "blue"
+      when 4 then "yellow"
+      when 5 then "brown"
+      when 6 then "orange"
+      when 7 then "black"
+      when 8 then "white"
+      end
+      colour_code.push(index)
+  end
 end
 
 # class when human chooses codebreaker
