@@ -2,8 +2,6 @@ require "pry-byebug"
 
 module Codes
   CODES = %w[red green blue yellow brown orange black white].freeze
-  code_as_numbers = []
-  CODES.each_with_index { |x, ind| code_as_numbers.push(ind + 1) }
 end
 
 module Breakables
@@ -289,13 +287,16 @@ class ComputerPlayer < Player
       puts "Comptuer is the codebreaker!"
       @past_feedback = []
       @past_guesses = []
-      @possible_guesses
+      @possible_guesses = []
+      @code_as_numbers = []
+      convert_code_to_numbers
       create_permutations
       puts "#{possible_guesses}"
+      binding.pry
     end
   end
 
-  attr_reader :past_feedback, :past_guesses, :possible_guesses
+  attr_reader :past_feedback, :past_guesses, :possible_guesses, :code_as_numbers
 
   def create_code
     # makes array of 4 random colours from CODES
@@ -309,7 +310,7 @@ class ComputerPlayer < Player
   def guess_code
     puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
     if @game.round_number == 1
-      guess = CODES.sample(4)
+      guess = [1, 1, 2, 2]
     else
       round = @game.round_number
       prev_round_correct = past_feedback[round - 2][0].length.to_i + past_feedback[round - 2][1].to_i
@@ -321,7 +322,8 @@ class ComputerPlayer < Player
         guess = CODES.sample(4)
       end
     end
-    guess = guess.shuffle
+    guess = numbers_to_colours(guess)
+    binding.pry
     guess.each { |x| puts "#{x}"; }
     save_guess(guess)
     guess
@@ -329,16 +331,16 @@ class ComputerPlayer < Player
 
   def create_permutations
     # generates all possible code permutations
-    code_as_numbers.repeated_permutation(4) { |p| code_as_numbers.push(p) }
+    code_as_numbers.repeated_permutation(4) { |p| possible_guesses.push(p) }
   end
 
   # untested method
   def numbers_to_colours(num_code)
     i = 0
     colour_code = []
-    num_code.length do
+    num_code.length.times do
       index = num_code[i]
-      case index
+      colour = case index
       when 1 then "red"
       when 2 then "green"
       when 3 then "blue"
@@ -348,7 +350,15 @@ class ComputerPlayer < Player
       when 7 then "black"
       when 8 then "white"
       end
-      colour_code.push(index)
+      colour_code.push(colour)
+      i += 1
+    end
+    colour_code
+  end
+
+  def convert_code_to_numbers
+    CODES.each_with_index { |x, ind| code_as_numbers.push(ind + 1) }
+    code_as_numbers
   end
 end
 
