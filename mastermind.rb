@@ -294,7 +294,7 @@ class ComputerPlayer < Player
     end
   end
 
-  attr_reader :past_feedback, :past_guesses, :possible_guesses, :code_as_numbers
+  attr_reader :past_feedback, :past_guesses, :possible_guesses, :code_as_numbers, :compare_feedback
 
   def create_code
     # makes array of 4 random colours from CODES
@@ -307,13 +307,15 @@ class ComputerPlayer < Player
 
   def guess_code
     puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
-    ####binding.pry
     if @game.round_number == 1
       guess = [1, 1, 1, 1]
+    elsif @compare_feedback == 1
+      # find first number where > 1 number is different
+      guess = find_new_guess
+    elsif @compare_feedback == 2
+      guess = find_new_guess
     else
-      round = @game.round_number
       guess = possible_guesses[0]
-      #####binding.pry
     end
     guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; }
@@ -326,7 +328,6 @@ class ComputerPlayer < Player
     code_as_numbers.repeated_permutation(4) { |p| possible_guesses.push(p) }
   end
 
-  # untested method
   def numbers_to_colours(num_code)
     i = 0
     colour_code = []
@@ -381,15 +382,12 @@ class ComputerPlayer < Player
     current_feedback = past_feedback[round - 1][0].length
     puts "This is the current feedback: #{current_feedback}"
     update_guesses(current_feedback, current_guess)
-    #####binding.pry
   end
 
   def update_guesses(feedback, guess)
     i = 0
-    ##binding.pry
     correct_guesses = []
     new_guesses = []
-    ####binding.pry
     guess.combination(feedback) { |g| correct_guesses.push(g) }
     # will make all possible permutations of prev correct guess
     correct_guesses.length.times do
@@ -403,13 +401,10 @@ class ComputerPlayer < Player
     new_guesses.uniq!
     # check if previous guess is still on this list
     new_guesses = previous_guess_check(new_guesses)
-    #binding.pry
     @possible_guesses = new_guesses
-    ##binding.pry
   end
 
   def previous_guess_check(guesses)
-    ##binding.pry
     current_guess = colours_to_numbers(past_guesses[@game.round_number - 1])
     unless guesses.index(current_guess) == nil
       guesses.delete_at(guesses.index(current_guess))
@@ -423,7 +418,6 @@ class ComputerPlayer < Player
     previous_feedback = @past_feedback[-2][0].length
     current_guess = colours_to_numbers(@past_guesses[-1])
     previous_guess = colours_to_numbers(@past_guesses[-2])
-
     if current_feedback > previous_feedback
       diff = current_guess.map.with_index { |x, i| x == previous_guess[i] }
       diff = diff.each_index.select { |i| !diff[i] }
@@ -444,9 +438,46 @@ class ComputerPlayer < Player
         end
         i += 1
       end
+    elsif @compare_feedback == 1
+      @compare_feedback += 1
+    else
+      @compare_feedback = 1 # this causes a check in guess_code
     end
     guess
-    #binding.pry
+  end
+
+  def find_new_guess
+    # current_feedback = @past_feedback[-1][0].length
+    current_guess = colours_to_numbers(@past_guesses[-1])
+    previous_guess = colours_to_numbers(@past_guesses[-2])
+
+    # difference_needed = current_feedback.to_i + 1
+    diff = current_guess.map.with_index { |x, i| x == previous_guess[i] }
+    diff = diff.each_index.select { |i| diff[i] }
+    diff = diff.last
+
+    if @compare_feedback > 1
+      @compare_feedback = 1
+      to_delete = []
+      @possible_guesses.map do |arr|
+        if arr[diff] == current_guess[diff] ||
+          arr[diff] == previous_guess[diff]
+          to_delete.push(arr)
+        end
+      end
+      i = 0
+      to_delete.length.times do
+        unless @possible_guesses.index(to_delete[i]) == nil
+          @possible_guesses.delete_at(@possible_guesses.index(to_delete[i]))
+        end
+        i += 1
+      end
+    end
+    new_guesses = []
+    @possible_guesses.map.with_index do |arr, ind|
+      new_guesses.push(ind) if arr[diff] > current_guess[diff]
+    end
+    @possible_guesses[new_guesses[0]]
   end
 end
 
