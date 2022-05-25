@@ -288,7 +288,6 @@ class ComputerPlayer < Player
       @past_guesses = []
       @possible_guesses = []
       @code_as_numbers = []
-      @compare_feedback = 0
       convert_code_to_numbers
       create_permutations
     end
@@ -309,13 +308,10 @@ class ComputerPlayer < Player
     puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
     if @game.round_number == 1
       guess = [1, 1, 1, 1]
-    elsif @compare_feedback == 1
-      # find first number where > 1 number is different
-      guess = find_new_guess
-    elsif @compare_feedback == 2
-      guess = find_new_guess
+    elsif @game.round_number == 2
+      guess = @possible_guesses[0]
     else
-      guess = possible_guesses[0]
+      guess = find_new_guess
     end
     guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; }
@@ -447,7 +443,8 @@ class ComputerPlayer < Player
   end
 
   def find_new_guess
-    # current_feedback = @past_feedback[-1][0].length
+    current_feedback = @past_feedback[-1][0].length
+    previous_feedback = @past_feedback[-2][0].length
     current_guess = colours_to_numbers(@past_guesses[-1])
     previous_guess = colours_to_numbers(@past_guesses[-2])
 
@@ -456,8 +453,7 @@ class ComputerPlayer < Player
     diff = diff.each_index.select { |i| diff[i] }
     diff = diff.last
 
-    if @compare_feedback > 1
-      @compare_feedback = 1
+    if current_feedback == previous_feedback
       to_delete = []
       @possible_guesses.map do |arr|
         if arr[diff] == current_guess[diff] ||
@@ -465,19 +461,34 @@ class ComputerPlayer < Player
           to_delete.push(arr)
         end
       end
-      i = 0
-      to_delete.length.times do
-        unless @possible_guesses.index(to_delete[i]) == nil
-          @possible_guesses.delete_at(@possible_guesses.index(to_delete[i]))
+      remove_guesses(to_delete)
+    elsif current_feedback < previous_feedback
+      to_delete = []
+      @possible_guesses.map do |arr|
+        unless arr[diff] == previous_guess[diff]
+          to_delete.push(arr)
         end
-        i += 1
       end
+      remove_guesses(to_delete)
+    else
+      return @possible_guesses[0]
     end
     new_guesses = []
     @possible_guesses.map.with_index do |arr, ind|
       new_guesses.push(ind) if arr[diff] > current_guess[diff]
     end
+    binding.pry
     @possible_guesses[new_guesses[0]]
+  end
+
+  def remove_guesses(to_delete)
+    i = 0
+    to_delete.length.times do
+      unless @possible_guesses.index(to_delete[i]) == nil
+        @possible_guesses.delete_at(@possible_guesses.index(to_delete[i]))
+      end
+      i += 1
+    end
   end
 end
 
