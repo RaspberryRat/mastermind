@@ -382,8 +382,6 @@ class ComputerPlayer < Player
     binding.pry
   end
 
-    # TODO need to fix this. Find a way to only keep exact match. For example right now I put in code 1,1,2,2
-   # still keeps code 1,1,1,1
   def update_guesses(feedback, guess)
     i = 0
     correct_guesses = []
@@ -391,15 +389,24 @@ class ComputerPlayer < Player
     guess.repeated_permutation(feedback) { |e| correct_guesses.push(e) }
     new_guesses = []
     correct_guesses.length.times do
-      possible_guesses.each do |arr|
-        new_guesses.push(arr) if arr.contains_all?(correct_guesses[i])
+      possible_guesses.map do |arr|
+        j = 0
+        arr.length.times do
+          arr2 = array[j..].first(feedback)
+          unless arr2.difference(correct_guesses[i]).any?
+            new_guesses.push(arr)
+            break
+          else
+            j +=1
+          end
+        end
+       end
+       i +=1
       end
-      i += 1
+      new_guesses = new_guesses.uniq
+      possible_guesses = new_guesses
+      binding.pry
     end
-    new_guesses.uniq!
-    possible_guesses = new_guesses
-    binding.pry
-  end
 end
 
 # class when human chooses codebreaker
@@ -434,11 +441,3 @@ class CodeMaker < Player
   end
 end
 
-# used to update possible guesses for the computer codebreaker
-class Array
-  def contains_all?(ary)
-      ary.uniq.all? { |x| count(x) >= ary.count(x) }
-  end
-end
-
-Game.new
