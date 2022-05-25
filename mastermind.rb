@@ -288,6 +288,7 @@ class ComputerPlayer < Player
       @past_guesses = []
       @possible_guesses = []
       @code_as_numbers = []
+      @compare_feedback = 0
       convert_code_to_numbers
       create_permutations
     end
@@ -306,13 +307,13 @@ class ComputerPlayer < Player
 
   def guess_code
     puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
-    ###binding.pry
+    ####binding.pry
     if @game.round_number == 1
       guess = [1, 1, 1, 1]
     else
       round = @game.round_number
       guess = possible_guesses[0]
-      ####binding.pry
+      #####binding.pry
     end
     guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; }
@@ -380,15 +381,15 @@ class ComputerPlayer < Player
     current_feedback = past_feedback[round - 1][0].length
     puts "This is the current feedback: #{current_feedback}"
     update_guesses(current_feedback, current_guess)
-    ####binding.pry
+    #####binding.pry
   end
 
   def update_guesses(feedback, guess)
     i = 0
-    #binding.pry
+    ##binding.pry
     correct_guesses = []
     new_guesses = []
-    ###binding.pry
+    ####binding.pry
     guess.combination(feedback) { |g| correct_guesses.push(g) }
     # will make all possible permutations of prev correct guess
     correct_guesses.length.times do
@@ -404,16 +405,48 @@ class ComputerPlayer < Player
     new_guesses = previous_guess_check(new_guesses)
     #binding.pry
     @possible_guesses = new_guesses
-    #binding.pry
+    ##binding.pry
   end
 
   def previous_guess_check(guesses)
-    #binding.pry
+    ##binding.pry
     current_guess = colours_to_numbers(past_guesses[@game.round_number - 1])
     unless guesses.index(current_guess) == nil
       guesses.delete_at(guesses.index(current_guess))
     end
+    check_feedback(guesses) if @game.round_number > 1
     guesses
+  end
+
+  def check_feedback(guess)
+    current_feedback = @past_feedback[-1][0].length
+    previous_feedback = @past_feedback[-2][0].length
+    current_guess = colours_to_numbers(@past_guesses[-1])
+    previous_guess = colours_to_numbers(@past_guesses[-2])
+
+    if current_feedback > previous_feedback
+      diff = current_guess.map.with_index { |x, i| x == previous_guess[i] }
+      diff = diff.each_index.select { |i| !diff[i] }
+      to_delete = []
+      guess.map do |arr|
+        i = 0
+        diff.length.times do
+          unless arr[diff[i]] == current_guess[diff[i]]
+            to_delete.push(arr)
+          end
+          i += 1
+        end
+      end
+      i = 0
+      to_delete.length.times do
+        unless guess.index(to_delete[i]) == nil
+          guess.delete_at(guess.index(to_delete[i]))
+        end
+        i += 1
+      end
+    end
+    guess
+    #binding.pry
   end
 end
 
