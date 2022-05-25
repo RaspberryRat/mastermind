@@ -306,13 +306,13 @@ class ComputerPlayer < Player
 
   def guess_code
     puts "\n\nIt is round #{@game.round_number}. It is the computer's turn to guess the code.\nThe computer guesses..."
-    binding.pry
+    ###binding.pry
     if @game.round_number == 1
       guess = [1, 1, 1, 1]
     else
       round = @game.round_number
       guess = possible_guesses[0]
-      #binding.pry
+      ####binding.pry
     end
     guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; }
@@ -355,7 +355,7 @@ class ComputerPlayer < Player
       num = case index
       when "red" then 1
       when "green" then 2
-      when "blue" then 2
+      when "blue" then 3
       when "yellow" then 4
       when "brown" then 5
       when "orange" then 6
@@ -378,33 +378,43 @@ class ComputerPlayer < Player
     current_guess = colours_to_numbers(past_guesses[round - 1])
     puts "This is the current guess: #{current_guess}"
     current_feedback = past_feedback[round - 1][0].length
+    puts "This is the current feedback: #{current_feedback}"
     update_guesses(current_feedback, current_guess)
+    ####binding.pry
+  end
+
+  def update_guesses(feedback, guess)
+    i = 0
+    #binding.pry
+    correct_guesses = []
+    new_guesses = []
+    ###binding.pry
+    guess.combination(feedback) { |g| correct_guesses.push(g) }
+    # will make all possible permutations of prev correct guess
+    correct_guesses.length.times do
+      possible_guesses.map do |arr|
+        arr.combination(feedback) do |n|
+          new_guesses.push(arr) if n == correct_guesses[i]
+        end
+      end
+      i += 1
+    end
+    new_guesses.uniq!
+    # check if previous guess is still on this list
+    new_guesses = previous_guess_check(new_guesses)
+    #binding.pry
+    @possible_guesses = new_guesses
     #binding.pry
   end
 
-    #TODO stll not working, copied method that I feel is close but still not working right
-  
-  def update_guesses(feedback, guess)
-    i = 0
-    correct_guesses = []
-    # will make all possible permutations of prev correct guess
-    guess.repeated_permutation(feedback) { |e| correct_guesses.push(e) }
-    new_guesses = []
-     # g.length.times do
-     #  possible_guesses.map do |arr|
-     #    if (g[i] - arr).empty?
-     #      new_guess.push(arr)
-     #    end
-     #  end
-     #  i += 1
-     #   end
-       end
-       i +=1
-      end
-      new_guesses = new_guesses.uniq
-      possible_guesses = new_guesses
-      binding.pry
+  def previous_guess_check(guesses)
+    #binding.pry
+    current_guess = colours_to_numbers(past_guesses[@game.round_number - 1])
+    unless guesses.index(current_guess) == nil
+      guesses.delete_at(guesses.index(current_guess))
     end
+    guesses
+  end
 end
 
 # class when human chooses codebreaker
