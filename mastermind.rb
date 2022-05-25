@@ -312,7 +312,7 @@ class ComputerPlayer < Player
     else
       round = @game.round_number
       guess = possible_guesses[0]
-      binding.pry
+      #binding.pry
     end
     guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; }
@@ -379,27 +379,25 @@ class ComputerPlayer < Player
     puts "This is the current guess: #{current_guess}"
     current_feedback = past_feedback[round - 1][0].length
     update_guesses(current_feedback, current_guess)
-    binding.pry
+    #binding.pry
   end
 
+    #TODO stll not working, copied method that I feel is close but still not working right
+  
   def update_guesses(feedback, guess)
     i = 0
     correct_guesses = []
     # will make all possible permutations of prev correct guess
     guess.repeated_permutation(feedback) { |e| correct_guesses.push(e) }
     new_guesses = []
-    correct_guesses.length.times do
-      possible_guesses.map do |arr|
-        j = 0
-        arr.length.times do
-          arr2 = array[j..].first(feedback)
-          unless arr2.difference(correct_guesses[i]).any?
-            new_guesses.push(arr)
-            break
-          else
-            j +=1
-          end
-        end
+     # g.length.times do
+     #  possible_guesses.map do |arr|
+     #    if (g[i] - arr).empty?
+     #      new_guess.push(arr)
+     #    end
+     #  end
+     #  i += 1
+     #   end
        end
        i +=1
       end
@@ -411,8 +409,8 @@ end
 
 # class when human chooses codebreaker
 class CodeMaker < Player
-  puts "You are the codemaker!"
   def initialize(game)
+    puts "You are the codemaker!"
     super
     @current_code = create_code
   end
@@ -441,3 +439,4 @@ class CodeMaker < Player
   end
 end
 
+Game.new
