@@ -423,7 +423,8 @@ class ComputerPlayer < Player
   end
 
   def guess_combination_check(feedback, guess)
-    #binding.pry
+    binding.pry
+    feedback += @past_feedback[@game.round_number - 1][1]
     i = 0
     correct_guesses = []
     to_keep = []
