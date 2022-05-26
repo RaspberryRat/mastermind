@@ -97,30 +97,23 @@ class Game
   end
 
   def game_turn_codebreaker
-    10.times do
-      if @round_number == 10
-        game_over
-      else
-        @round_number += 1
-        player_guess = @player1.guess_code
-        @player1.save_feedback(check_answer(player_guess))
-        @player1.report_feedback
-      end
+    until @round_number == 10
+      @round_number += 1
+      player_guess = @player1.guess_code
+      @player1.save_feedback(check_answer(player_guess))
+      @player1.report_feedback
     end
+    game_over
   end
 
   def game_turn_codemaker
-    10.times do
-      if @round_number == 10
-        game_over_computer
-      else
-        @round_number += 1
-        computer_guess = @player2.guess_code
-        @player2.save_feedback(check_answer(computer_guess))
-        @player2.evaluate_guess
-
-      end
+    until @round_number == 10
+      @round_number += 1
+      computer_guess = @player2.guess_code
+      @player2.save_feedback(check_answer(computer_guess))
+      @player2.evaluate_guess
     end
+    game_over_computer
   end
 
   def check_answer(guess)
@@ -312,7 +305,7 @@ class ComputerPlayer < Player
       guess = @possible_guesses.sort[0]
     end
     guess = numbers_to_colours(guess)
-    guess.each { |x| puts "#{x}"; sleep(0.5) }
+    guess.each { |x| puts "#{x}"; sleep(0.2) }
     save_guess(guess)
     guess
   end
@@ -375,11 +368,12 @@ class ComputerPlayer < Player
     puts "This is the current guess: #{current_guess}"
     current_feedback = past_feedback[round - 1][0].length
     puts "This is the current feedback: #{current_feedback}"
+    binding.pry
     update_guesses(current_feedback, current_guess)
   end
 
   def update_guesses(feedback, guess)
-    ##binding.pry
+    binding.pry
     to_delete = []
     to_keep = []
     to_delete.push(@possible_guesses[0])
