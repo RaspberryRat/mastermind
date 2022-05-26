@@ -450,6 +450,7 @@ class ComputerPlayer < Player
     correct_guesses = []
     to_keep = []
     guess.combination(feedback) { |g| correct_guesses.push(g) }
+    guess.combination(feedback) { |g| correct_guesses.push(g.reverse) }
 
     correct_guesses.length.times do
       @possible_guesses.map do |arr|
