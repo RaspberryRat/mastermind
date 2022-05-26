@@ -379,8 +379,11 @@ class ComputerPlayer < Player
   end
 
   def update_guesses(feedback, guess)
-    binding.pry
+    #binding.pry
     to_delete = []
+    if feedback > 0
+      to delete = guess_combination_check(feedback, guess)
+    end 
     if feedback == 0
       i = 0
       guess.length.times do
@@ -402,7 +405,7 @@ class ComputerPlayer < Player
           to_delete.push(arr) if arr[index] == guess[index]
         end
       elsif @game.round_number > 1 && (feedback == previous_feedback)
-        binding.pry
+        #binding.pry
         index = find_index_difference.pop
         @possible_guesses.map do |arr|
           if arr[index] == guess[index] ||
@@ -423,6 +426,9 @@ class ComputerPlayer < Player
     to_delete.uniq!
     remove_guesses(to_delete)
   end
+
+  def guess_combination_check(to_delete)
+    i = 0
   
 
   # returns index location of the number that changed between guesses
