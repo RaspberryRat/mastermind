@@ -129,7 +129,6 @@ class Game
       role = @check_role == "codebreaker" ? "You" : "The computer"
       puts "\n#{role} guess is incorrect."
     end
-
     # used to save feedback to provide to codebreaker
     feedback = []
     feedback.push(location_match(guess, code))
@@ -176,7 +175,7 @@ class Game
   end
 
   def correct_colours(guess, code)
-    guess.filter { |x| code.include?(x) }.length
+    guess.uniq.filter { |x| code.uniq.include?(x) }.length
   end
 
   def game_over
