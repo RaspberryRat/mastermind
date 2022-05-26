@@ -427,8 +427,16 @@ class ComputerPlayer < Player
     remove_guesses(to_delete)
   end
 
-  def guess_combination_check(to_delete)
+  def guess_combination_check(feedback, guess)
     i = 0
+    correct_guesses = []
+    new_guesses = []
+    guess.combination(feedback) { |g| correct_guesses.push(g) }
+
+    correct_guess.length.times do
+      @possible_guesses.map do |arr|
+        arr.combination(feedback) do |n|
+          # TODO WORKING HERE
   
 
   # returns index location of the number that changed between guesses
