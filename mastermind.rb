@@ -14,6 +14,7 @@ module Breakables
   end
 
   def report_guesses
+    binding.pry
     i = 1
     role = @game.check_role == "codebreaker" ? "You" : "The computer"
     past_guesses.length.times do
@@ -59,7 +60,7 @@ class Game
   include Codes
   def initialize
     @board = Array.new(4)
-    @round_number = 1
+    @round_number = 0
     if codemaker_or_breaker?
       @player1 = CodeMaker.new(self)
       @player2 = ComputerPlayer.new(self, "codebreaker")
@@ -101,10 +102,10 @@ class Game
       if @round_number == 10
         game_over
       else
+        @round_number += 1
         player_guess = @player1.guess_code
         @player1.save_feedback(check_answer(player_guess))
         @player1.report_feedback
-        @round_number += 1
       end
     end
   end
@@ -311,6 +312,7 @@ class ComputerPlayer < Player
     else
       guess = @possible_guesses[0]
     end
+    binding.pry
     guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; }
     save_guess(guess)
@@ -381,9 +383,9 @@ class ComputerPlayer < Player
   def update_guesses(feedback, guess)
     #binding.pry
     to_delete = []
-    if feedback > 0
-      to delete = guess_combination_check(feedback, guess)
-    end 
+    if feedback > 1
+      guess_combination_check(feedback, guess)
+    end
     if feedback == 0
       i = 0
       guess.length.times do
@@ -429,15 +431,23 @@ class ComputerPlayer < Player
 
   def guess_combination_check(feedback, guess)
     i = 0
+    binding.pry
     correct_guesses = []
-    new_guesses = []
-    guess.combination(feedback) { |g| correct_guesses.push(g) }
+    to_keep = []
+    guess.combination(feedback - 1) { |g| correct_guesses.push(g) }
 
-    correct_guess.length.times do
+    correct_guesses.length.times do
       @possible_guesses.map do |arr|
-        arr.combination(feedback) do |n|
-          # TODO WORKING HERE
-  
+        arr.combination(feedback - 1) do |n|
+          if n == correct_guesses[i]
+            to_keep.push(arr)
+          end
+        end
+      end
+      i += 1
+    end
+    @possible_guesses = to_keep.uniq
+  end
 
   # returns index location of the number that changed between guesses
   def find_index_difference
