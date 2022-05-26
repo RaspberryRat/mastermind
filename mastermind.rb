@@ -458,6 +458,7 @@ class ComputerPlayer < Player
     remove_guesses(to_delete)
   end
 
+  # takes all possible combinations of guess and feedback and updates possible_guesses
   def guess_combination_check(feedback, guess)
     #binding.pry
     i = 0
