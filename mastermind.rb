@@ -319,10 +319,16 @@ class ComputerPlayer < Player
     round = @game.round_number
     puts "\n\nIt is round #{round}. It is the computer's turn to guess the code.\nThe computer guesses..."
     current_feedback = @past_feedback[-1][0].length if round > 1
+    feedback_w_colour = current_feedback + @past_feedback[-1][1] if round > 1
+    previous_feedback = @past_feedback[-2][0].length if round > 2
+    prev_feedback_w_colour = previous_feedback + @past_feedback[-2][1] if round > 2
+
     if round == 1
       guess = [1, 1, 2, 2]
     elsif round == 2 && current_feedback < 3
       guess = [3, 3, 4, 4]
+    elsif round == 3 && (feedback_w_colour + prev_feedback_w_colour) > 2
+      guess = @possible_guesses.sort[0]
     elsif round == 3 && current_feedback < 3
       guess = [5, 5, 6, 6]
     else
@@ -415,6 +421,7 @@ class ComputerPlayer < Player
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
     lock_in_guesses(guess) if feedback.positive?
     guess_combination_check(feedback_w_colour, guess) if feedback_w_colour > 0
+    check_past_guesses if feedback == 3 && round > 2
 
     if feedback_w_colour.positive? && feedback.zero?
       i = 0
@@ -493,6 +500,36 @@ class ComputerPlayer < Player
       i += 1
     end
     remove_guesses(to_delete.uniq)
+  end
+
+  def check_past_guesses
+    round = @game.round_number
+    feedback_is_three = []
+    index_location = []
+    @past_feedback.map.with_index do |feedback, ind|
+      if feedback[0].length == 3
+        feedback_is_three.push(feedback[0])
+        index_location.push(ind)
+      end
+    end
+    return unless feedback_is_three.length == 2
+    #binding.pry
+    diff = @past_guesses[index_location[-2]].map.with_index do |x, ind|
+      x == @past_guesses[index_location[-1]][ind]
+    end
+    diff = diff.each_index.select { |i| diff[i] }
+    guess = colours_to_numbers(@past_guesses[index_location[-1]])
+    i = 0
+    to_keep = []
+    @possible_guesses.map do |arr|
+      i += 1 if arr[diff[i]] == guess[diff[i]]
+      i += 1 if arr[diff[i]] == guess[diff[i]]
+      if arr[diff[i]] == guess[diff[i]]
+        to_keep.push(arr)
+      end
+      i = 0
+    end
+    @possible_guesses = to_keep.uniq
   end
 
   def lock_in_guesses(guess)
