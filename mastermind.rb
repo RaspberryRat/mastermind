@@ -432,13 +432,11 @@ class ComputerPlayer < Player
       if round > 1 && (feedback < previous_feedback)
         #binding.pry
         if find_index_difference.length < 3
-          index1 = index.pop
-          @possible_guesses.map do |arr|
-            to_keep.push(arr) if arr[index1] == previous_guess[index1]
-          end
-          index2 = index.pop
-          @possible_guesses.map do |arr|
-            to_keep.push(arr) if arr[index2] == previous_guess[index2]
+          index.length.times do
+            index1 = index.pop
+            @possible_guesses.map do |arr|
+              to_keep.push(arr) if arr[index1] == previous_guess[index1]
+            end
           end
         end
         #binding.pry
