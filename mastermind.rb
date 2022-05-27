@@ -399,6 +399,8 @@ class ComputerPlayer < Player
     to_delete.push(guess)
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
     #binding.pry
+    lock_in_guesses(guess) if feedback > 0
+
     if feedback_w_colour > 0 #i think this is right
       guess_combination_check(feedback_w_colour, guess)
     end
@@ -466,6 +468,20 @@ class ComputerPlayer < Player
 
     to_delete.uniq!
     remove_guesses(to_delete)
+  end
+
+  def lock_in_guesses(guess)
+    i = 0
+    to_keep = []
+    guess.length.times do
+      @possible_guesses.map do |arr|
+        if arr[i] == guess[i]
+          to_keep.push(arr)
+        end
+      end
+      i += 1
+    end
+    @possible_guesses = to_keep.uniq
   end
 
   # takes all possible combinations of guess and feedback and updates possible_guesses
