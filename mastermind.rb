@@ -4,6 +4,7 @@ module Codes
   CODES = %w[red green blue yellow brown orange].freeze
 end
 
+# Used for methods shared between codebreakers
 module Breakables
   def save_guess(guess)
     past_guesses.push(guess)
@@ -31,8 +32,8 @@ module Breakables
   end
 
   # This prints out all feedback for player review
-  def report_feedback(round=0)
-    if round == 0
+  def report_feedback(round = 0)
+    if round.zero?
       # this retrives current round guess
       guess = past_feedback[-1]
       plural = guess[0].length == 1 ? "code" : "codes"
@@ -71,7 +72,6 @@ class Game
       @player1 = CodeBreaker.new(self)
       @player2 = ComputerPlayer.new(self, "codemaker")
       @check_role = "codebreaker"
-      puts "\nYou have 10 rounds to break the code."
       game_turn_codebreaker
     end
   end
@@ -97,6 +97,7 @@ class Game
 
   def game_turn_codebreaker
     until @round_number == 10
+      puts "\nYou have 10 rounds to break the code."
       @round_number += 1
       player_guess = @player1.guess_code
       @player1.save_feedback(check_answer(player_guess))
@@ -142,7 +143,7 @@ class Game
     feedback
   end
 
-  private 
+  private
 
   def delete_code_location_match(code, feedback)
     # deletes matches in the code where the guess was correct
@@ -191,11 +192,9 @@ class Game
   def game_over
     # end of game if go to 10 rounds
     puts "\n\nYou have made #{@round_number} guesses and failed. Codemaker "\
-    "wins.\n The correct code was #{@player2.read_code}"
+    "wins.\n The correct code was #{@board}"
     new_game
   end
-
-  private
 
   def game_over_winner
     # end of game if codebreked guesses code
@@ -256,14 +255,15 @@ class CodeBreaker < Player
     puts "\n\n#{name}, it is round ##{@game.round_number}. It is your turn to guess."
     print "\nYour choices are: #{CODES}\n"
     puts "\nPlease enter your guess from left to right:"
+    puts 'Type "feedback" to see previous guesses' if @game.round_number > 1
     i = 0
     while i < 4
       choice = gets.chomp.to_s.strip
-        until CODES.any?(choice)
-          if choice == "feedback"
-            report_guesses
-            choice = gets.chomp.to_s
-          else
+      until CODES.any?(choice)
+        if choice == "feedback"
+          report_guesses
+          choice = gets.chomp.to_s
+        else
           puts "\nYour choice: \"#{choice}\" is not a possible guess, please enter another guess.\n"
           print "Possible guesses are #{CODES}\n"
           choice = gets.chomp.to_s
@@ -286,7 +286,7 @@ class ComputerPlayer < Player
     if role == "codemaker"
       @current_code = create_code
       # this will print the code for debugging
-      p read_code
+      # p read_code
     else
       puts "Comptuer is the codebreaker!"
       @past_feedback = []
@@ -302,7 +302,7 @@ class ComputerPlayer < Player
   attr_reader :past_feedback, :past_guesses, :possible_guesses, :code_as_numbers, :compare_feedback
 
   private
-  
+
   def create_code
     # makes array of 4 random colours from CODES
     @game.code_maker(CODES.sample(4))
@@ -313,13 +313,12 @@ class ComputerPlayer < Player
   end
 
   public
-  
+
   # determines what code the computer will guess
   def guess_code
     round = @game.round_number
     puts "\n\nIt is round #{round}. It is the computer's turn to guess the code.\nThe computer guesses..."
     current_feedback = @past_feedback[-1][0].length if round > 1
-    previous_feedback = @past_feedback[-2][0].length if round > 2
     if round == 1
       guess = [1, 1, 2, 2]
     elsif round == 2 && current_feedback < 3
@@ -388,7 +387,7 @@ class ComputerPlayer < Player
 
   # used to generate code list from CODES constant
   def convert_code_to_numbers
-    CODES.each_with_index { |x, ind| code_as_numbers.push(ind + 1) }
+    CODES.each_with_index { |_, ind| code_as_numbers.push(ind + 1) }
     code_as_numbers
   end
 
@@ -407,18 +406,17 @@ class ComputerPlayer < Player
   end
 
   private
-  
+
   def update_guesses(feedback, guess)
     round = @game.round_number
     to_delete = []
     to_keep = []
     to_delete.push(guess)
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
-    lock_in_guesses(guess) if feedback > 0
-    if feedback_w_colour > 0 #i think this is right
-      guess_combination_check(feedback_w_colour, guess)
-    end
-    if feedback_w_colour > 0 && feedback == 0
+    lock_in_guesses(guess) if feedback.positive?
+    guess_combination_check(feedback_w_colour, guess) if feedback_w_colour > 0
+
+    if feedback_w_colour.positive? && feedback.zero?
       i = 0
       guess.length.times do
         @possible_guesses.map do |arr|
@@ -431,7 +429,7 @@ class ComputerPlayer < Player
         i += 1
       end
     end
-    if feedback_w_colour == 0
+    if feedback_w_colour.zero?
       i = 0
       guess.length.times do
         @possible_guesses.map do |arr|
@@ -440,9 +438,9 @@ class ComputerPlayer < Player
         i += 1
       end
     elsif round > 1
-    previous_feedback = @past_feedback[-2][0].length
-    previous_guess = colours_to_numbers(@past_guesses[-2])
-    index = find_index_difference
+      previous_feedback = @past_feedback[-2][0].length
+      previous_guess = colours_to_numbers(@past_guesses[-2])
+      index = find_index_difference
       if round > 1 && (feedback < previous_feedback)
         if find_index_difference.length < 3
           index.length.times do
@@ -453,11 +451,12 @@ class ComputerPlayer < Player
           end
         end
       elsif round > 1 && (feedback == previous_feedback)
+        reduce_guesses if feedback == 3
         if find_index_difference.length == 1
           index = index.pop
           @possible_guesses.map do |arr|
             unless arr[index] == guess[index] ||
-              arr[index] == previous_guess[index]
+                arr[index] == previous_guess[index]
               to_keep.push(arr)
             end
           end
@@ -466,9 +465,7 @@ class ComputerPlayer < Player
         if find_index_difference.length == 1
           index = index.pop
           @possible_guesses.map do |arr|
-            if arr[index] == guess[index]
-              to_keep.push(arr)
-            end
+            to_keep.push(arr) if arr[index] == guess[index]
           end
         end
       end
@@ -480,14 +477,31 @@ class ComputerPlayer < Player
     remove_guesses(to_delete)
   end
 
+  def reduce_guesses
+    #binding.pry
+    guess = colours_to_numbers(@past_guesses[-1])
+    index = find_index_difference
+    return unless index.length == 1
+    index = index.pop
+    array = [0, 1, 2, 3]
+    array.delete_at(index)
+    to_delete = []
+    i = 0
+    array.length.times do
+      @possible_guesses.map do |arr|
+        to_delete.push(arr) unless arr[array[i]] == guess[array[i]]
+      end
+      i += 1
+    end
+    remove_guesses(to_delete.uniq)
+  end
+
   def lock_in_guesses(guess)
     i = 0
     to_keep = []
     guess.length.times do
       @possible_guesses.map do |arr|
-        if arr[i] == guess[i]
-          to_keep.push(arr)
-        end
+        to_keep.push(arr) if arr[i] == guess[i]
       end
       i += 1
     end
@@ -496,7 +510,6 @@ class ComputerPlayer < Player
 
   # takes all possible combinations of guess and feedback and updates possible_guesses
   def guess_combination_check(feedback, guess)
-    #binding.pry
     i = 0
     correct_guesses = []
     to_keep = []
@@ -505,9 +518,7 @@ class ComputerPlayer < Player
     correct_guesses.length.times do
       @possible_guesses.map do |arr|
         arr.combination(feedback) do |n|
-          if n == correct_guesses[i]
-            to_keep.push(arr)
-          end
+          to_keep.push(arr) if n == correct_guesses[i]
         end
       end
       i += 1
@@ -517,11 +528,8 @@ class ComputerPlayer < Player
 
   # returns index location of the number that changed between guesses
   def find_index_difference
-    current_feedback = @past_feedback[-1][0].length
-    previous_feedback = @past_feedback[-2][0].length
     current_guess = colours_to_numbers(@past_guesses[-1])
     previous_guess = colours_to_numbers(@past_guesses[-2])
-    # difference_needed = current_feedback.to_i + 1
     diff = current_guess.map.with_index { |x, i| x == previous_guess[i] }
     diff = diff.each_index.select { |i| !diff[i] }
     diff = diff.last(1) if diff.length == 1
@@ -529,7 +537,7 @@ class ComputerPlayer < Player
   end
 
   def remove_guesses(to_delete)
-   @possible_guesses -= to_delete
+    @possible_guesses -= to_delete
   end
 end
 
@@ -548,11 +556,11 @@ class CodeMaker < Player
     i = 0
     while i < 4
       new_code = gets.chomp.to_s.strip
-        until CODES.any?(new_code)
-          if new_code == "feedback"
-            report_guesses
-            new_code = gets.chomp.to_s
-          else
+      until CODES.any?(new_code)
+        if new_code == "feedback"
+          report_guesses
+          new_code = gets.chomp.to_s
+        else
           puts "\nYour choice: \"#{new_code}\" is not a possible code, please enter another colour.\n"
           print "Possible colours are #{CODES}\n"
           new_code = gets.chomp.to_s
