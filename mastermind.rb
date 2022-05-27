@@ -425,18 +425,16 @@ class ComputerPlayer < Player
   end
 
   def update_guesses(feedback, guess)
-    #binding.pry
     round = @game.round_number
     to_delete = []
     to_keep = []
     to_delete.push(guess)
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
-    lock_in_guesses(guess) if feedback > 0
-    if feedback_w_colour > 0 #i think this is right
-      guess_combination_check(feedback_w_colour, guess)
-    end
-    if feedback_w_colour > 0 && feedback == 0
-      #binding.pry
+    lock_in_guesses(guess) if feedback.positive?
+    guess_combination_check(feedback_w_colour, guess) if feedback_w_colour > 0
+    check_past_guesses if feedback == 3 && round > 2
+
+    if feedback_w_colour.positive? && feedback.zero?
       i = 0
       guess.length.times do
         @possible_guesses.map do |arr|
@@ -448,9 +446,8 @@ class ComputerPlayer < Player
         end
         i += 1
       end
-      #binding.pry
     end
-    if feedback_w_colour == 0
+    if feedback_w_colour.zero?
       i = 0
       guess.length.times do
         @possible_guesses.map do |arr|
@@ -459,11 +456,10 @@ class ComputerPlayer < Player
         i += 1
       end
     elsif round > 1
-    previous_feedback = @past_feedback[-2][0].length
-    previous_guess = colours_to_numbers(@past_guesses[-2])
-    index = find_index_difference
+      previous_feedback = @past_feedback[-2][0].length
+      previous_guess = colours_to_numbers(@past_guesses[-2])
+      index = find_index_difference
       if round > 1 && (feedback < previous_feedback)
-        #binding.pry
         if find_index_difference.length < 3
           index.length.times do
             index1 = index.pop
@@ -472,14 +468,13 @@ class ComputerPlayer < Player
             end
           end
         end
-        #binding.pry
       elsif round > 1 && (feedback == previous_feedback)
         reduce_guesses if feedback == 3
         if find_index_difference.length == 1
           index = index.pop
           @possible_guesses.map do |arr|
             unless arr[index] == guess[index] ||
-              arr[index] == previous_guess[index]
+                arr[index] == previous_guess[index]
               to_keep.push(arr)
             end
           end
@@ -488,9 +483,7 @@ class ComputerPlayer < Player
         if find_index_difference.length == 1
           index = index.pop
           @possible_guesses.map do |arr|
-            if arr[index] == guess[index]
-              to_keep.push(arr)
-            end
+            to_keep.push(arr) if arr[index] == guess[index]
           end
         end
       end
@@ -519,51 +512,71 @@ class ComputerPlayer < Player
     end
     remove_guesses(to_delete.uniq)
   end
+
+  def check_past_guesses
+    round = @game.round_number
+    feedback_is_three = []
+    index_location = []
+    @past_feedback.map.with_index do |feedback, ind|
+      if feedback[0].length == 3
+        feedback_is_three.push(feedback[0])
+        index_location.push(ind)
+      end
+    end
+    return unless feedback_is_three.length == 2
+    #binding.pry
+    diff = @past_guesses[index_location[-2]].map.with_index do |x, ind|
+      x == @past_guesses[index_location[-1]][ind]
+    end
+    diff = diff.each_index.select { |i| diff[i] }
+    guess = colours_to_numbers(@past_guesses[index_location[-1]])
+    i = 0
+    to_keep = []
+    @possible_guesses.map do |arr|
+      i += 1 if arr[diff[i]] == guess[diff[i]]
+      i += 1 if arr[diff[i]] == guess[diff[i]]
+      if arr[diff[i]] == guess[diff[i]]
+        to_keep.push(arr)
+      end
+      i = 0
+    end
+    @possible_guesses = to_keep.uniq
+  end
+
   def lock_in_guesses(guess)
     i = 0
     to_keep = []
     guess.length.times do
       @possible_guesses.map do |arr|
-        if arr[i] == guess[i]
-          to_keep.push(arr)
-        end
+        to_keep.push(arr) if arr[i] == guess[i]
       end
       i += 1
     end
     @possible_guesses = to_keep.uniq
   end
+
   # takes all possible combinations of guess and feedback and updates possible_guesses
   def guess_combination_check(feedback, guess)
-    #binding.pry
     i = 0
     correct_guesses = []
     to_keep = []
     guess.permutation(feedback) { |g| correct_guesses.push(g) }
-
     correct_guesses.uniq!
     correct_guesses.length.times do
       @possible_guesses.map do |arr|
         arr.combination(feedback) do |n|
-          if n == correct_guesses[i]
-            to_keep.push(arr)
-          end
+          to_keep.push(arr) if n == correct_guesses[i]
         end
       end
       i += 1
     end
     @possible_guesses = to_keep.uniq
-    ####binding.pry
   end
 
   # returns index location of the number that changed between guesses
   def find_index_difference
-    ####binding.pry
-    current_feedback = @past_feedback[-1][0].length
-    previous_feedback = @past_feedback[-2][0].length
     current_guess = colours_to_numbers(@past_guesses[-1])
     previous_guess = colours_to_numbers(@past_guesses[-2])
-
-    # difference_needed = current_feedback.to_i + 1
     diff = current_guess.map.with_index { |x, i| x == previous_guess[i] }
     diff = diff.each_index.select { |i| !diff[i] }
     diff = diff.last(1) if diff.length == 1
@@ -571,7 +584,7 @@ class ComputerPlayer < Player
   end
 
   def remove_guesses(to_delete)
-   @possible_guesses = @possible_guesses - to_delete
+    @possible_guesses -= to_delete
   end
 end
 
