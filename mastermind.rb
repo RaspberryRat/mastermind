@@ -398,9 +398,7 @@ class ComputerPlayer < Player
     to_keep = []
     to_delete.push(guess)
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
-    #binding.pry
     lock_in_guesses(guess) if feedback > 0
-
     if feedback_w_colour > 0 #i think this is right
       guess_combination_check(feedback_w_colour, guess)
     end
@@ -417,6 +415,7 @@ class ComputerPlayer < Player
         end
         i += 1
       end
+      #binding.pry
     end
     if feedback_w_colour == 0
       i = 0
@@ -426,7 +425,7 @@ class ComputerPlayer < Player
         end
         i += 1
       end
-    elsif round > 3
+    elsif round > 1
     previous_feedback = @past_feedback[-2][0].length
     previous_guess = colours_to_numbers(@past_guesses[-2])
     index = find_index_difference
@@ -440,6 +439,7 @@ class ComputerPlayer < Player
             end
           end
         end
+        #binding.pry
       elsif round > 1 && (feedback == previous_feedback)
         if find_index_difference.length == 1
           index = index.pop
@@ -451,13 +451,11 @@ class ComputerPlayer < Player
           end
         end
       elsif round > 1 && (feedback > previous_feedback)
-        if find_index_difference.length < 3
-          index.length.times do
-            index1 = index.pop
-            @possible_guesses.map do |arr|
-              if arr[index1] == guess[index1]
-                to_keep.push(arr)
-              end
+        if find_index_difference.length == 1
+          index = index.pop
+          @possible_guesses.map do |arr|
+            if arr[index] == guess[index]
+              to_keep.push(arr)
             end
           end
         end
@@ -465,6 +463,7 @@ class ComputerPlayer < Player
     end
     @possible_guesses = to_keep unless to_keep.empty?
     return if to_delete.empty?
+
     to_delete.uniq!
     remove_guesses(to_delete)
   end
