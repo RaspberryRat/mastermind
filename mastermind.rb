@@ -175,7 +175,16 @@ class Game
   end
 
   def correct_colours(guess, code)
-    guess.uniq.filter { |x| code.uniq.include?(x) }.length
+    i = 0
+    correct_colour = 0
+    guess.length.times do
+      if code.include?(guess[i])
+        correct_colour += 1
+        code.delete_at(code.index(guess[i]))
+      end
+      i += 1
+    end
+    correct_colour
   end
 
   def game_over
@@ -375,7 +384,7 @@ class ComputerPlayer < Player
     current_guess = colours_to_numbers(past_guesses[round - 1])
     puts "This is the current guess: #{current_guess}"
     current_feedback = past_feedback[round - 1][0].length
-    current_colour_feedback = past_feedback[round-1][1]
+    current_colour_feedback = past_feedback[round - 1][1]
     puts "This is the current feedback: #{current_feedback}"
     puts "This is current colour feedback : #{current_colour_feedback}"
     #binding.pry
