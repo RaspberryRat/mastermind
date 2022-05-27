@@ -329,16 +329,14 @@ class ComputerPlayer < Player
     @skip = 0
     round = @game.round_number
     puts "\n\nIt is round #{round}. It is the computer's turn to guess the code.\nThe computer guesses..."
-    current_feedback = @past_feedback[-1][0].length if round > 2
+    current_feedback = @past_feedback[-1][0].length if round > 1
     previous_feedback = @past_feedback[-2][0].length if round > 2
     if round == 1
       guess = [1, 1, 2, 2]
-    #elsif round == 4 && (current_feedback == previous_feedback)
-    #  guess = [5, 5, 6, 6]
-    #  @skip = 1
-    #elsif round == 5 && (current_feedback == previous_feedback)
-    #  guess = [7, 7, 8, 8]
-    #  @skip = 1
+    elsif round == 2 && current_feedback < 3
+      guess = [3, 3, 4, 4]
+    elsif round == 3 && current_feedback < 3
+      guess = [5, 5, 6, 6]
     else
       guess = @possible_guesses.sort[0]
     end
