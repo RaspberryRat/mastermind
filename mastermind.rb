@@ -426,7 +426,7 @@ class ComputerPlayer < Player
         end
         i += 1
       end
-    elsif round > 1
+    elsif round > 3
     previous_feedback = @past_feedback[-2][0].length
     previous_guess = colours_to_numbers(@past_guesses[-2])
     index = find_index_difference
@@ -441,14 +441,12 @@ class ComputerPlayer < Player
           end
         end
       elsif round > 1 && (feedback == previous_feedback)
-        if find_index_difference.length < 3
-          index.length.times do
-            index1 = index.pop
-            @possible_guesses.map do |arr|
-              unless arr[index1] == guess[index1] ||
-                arr[index1] == previous_guess[index1]
-                to_keep.push(arr)
-              end
+        if find_index_difference.length == 1
+          index = index.pop
+          @possible_guesses.map do |arr|
+            unless arr[index] == guess[index] ||
+              arr[index] == previous_guess[index]
+              to_keep.push(arr)
             end
           end
         end
