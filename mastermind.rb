@@ -57,13 +57,18 @@ end
 # contians the game logic
 class Game
   include Codes
+  @@game_number = 0
+  @@computer_wins = 0
+  @@player_wins = 0
   def initialize
     @board = Array.new(4)
     @round_number = 0
+    @@game_number += 1
     if codemaker_or_breaker?
-      @player1 = CodeMaker.new(self)
+      @player1 = CodeMaker.new(self, get_current_code)
       @player2 = ComputerPlayer.new(self, "codebreaker")
       @check_role = "codemaker"
+      binding.pry
       game_turn_codemaker
     else
       @player1 = CodeBreaker.new(self)
@@ -75,9 +80,16 @@ class Game
   end
   attr_reader :board, :round_number, :check_role
 
+  def get_current_code
+    code = []
+    CODES.repeated_permutation(4) { |p| code.push(p) }
+    code[@@game_number]
+  end
+
   def codemaker_or_breaker?
     puts "\nDo you want to be the CodeMaker or the CodeBreaker?"
-    answer = gets.chomp.strip.downcase
+    #answer = gets.chomp.strip.downcase
+    answer = "codemaker"
 
     until %w[codemaker codebreaker].include?(answer)
       puts "You have to choose a role...\n"
@@ -189,12 +201,13 @@ class Game
     # end of game if codebreked guesses code
     puts "\n\nYou have made #{@round_number} guesses and won! Codebreaker wins"\
     ". \nThe correct code was #{@player2.read_code}"
-    new_game
+    new_game until @@game_number == 1296
   end
 
   def new_game
-    puts "\n\nHello, would you like to play a new game of Mastermind? (yes/no)?"
-    answer = gets.chomp
+    #puts "\n\nHello, would you like to play a new game of Mastermind? (yes/no)?"
+    puts "The computer has #{@@computer_wins} wins.\nThe player has #{@@player_wins} wins."
+    answer = "yes"
 
     until %w[yes no].include?(answer)
       puts "\nWould you like to play a new game of Mastermind? (yes/no)?"
@@ -207,13 +220,16 @@ class Game
   def game_over_computer
     # end of game if computer fails to win as codebreaker
     puts "\n\nThe computer has failed to break your code after #{@round_number} rounds! You are a brilliant codemaker."
-    new_game
+    @@player_wins += 1
+    new_game until @@game_number == 1296
+    
   end
 
   def game_over_computer_wins
     # game over if computer wins
     puts "\n\nThe computer has broken your code after #{@round_number} rounds. You have failed as a codemaker."
-    new_game
+    @@computer_wins += 1
+    new_game until @@game_number == 1296
   end
 end
 
@@ -315,7 +331,7 @@ class ComputerPlayer < Player
       guess = @possible_guesses.sort[0]
     end
     guess = numbers_to_colours(guess)
-    guess.each { |x| puts "#{x}"; sleep(0.2) }
+    guess.each { |x| puts "#{x}"; }
     save_guess(guess)
     guess
   end
@@ -520,10 +536,11 @@ end
 
 # class when human chooses codebreaker
 class CodeMaker < Player
-  def initialize(game)
+  def initialize(game, code)
     puts "You are the codemaker!"
     super
-    @current_code = create_code
+    @current_code = code
+    binding.pry
   end
 
   def create_code
@@ -551,3 +568,5 @@ class CodeMaker < Player
 end
 
 Game.new
+
+
