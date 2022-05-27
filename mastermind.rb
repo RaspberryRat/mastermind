@@ -400,7 +400,6 @@ class ComputerPlayer < Player
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
     #binding.pry
     lock_in_guesses(guess) if feedback > 0
-    reduce_guesses(guess, feedback) if feedback > 1
 
     if feedback_w_colour > 0 #i think this is right
       guess_combination_check(feedback_w_colour, guess)
@@ -418,7 +417,6 @@ class ComputerPlayer < Player
         end
         i += 1
       end
-      #binding.pry
     end
     if feedback_w_colour == 0
       i = 0
@@ -442,23 +440,26 @@ class ComputerPlayer < Player
             end
           end
         end
-        #binding.pry
       elsif round > 1 && (feedback == previous_feedback)
-        if find_index_difference.length == 1
-          index = index.pop
-          @possible_guesses.map do |arr|
-            unless arr[index] == guess[index] ||
-              arr[index] == previous_guess[index]
-              to_keep.push(arr)
+        if find_index_difference.length < 3
+          index.length.times do
+            index1 = index.pop
+            @possible_guesses.map do |arr|
+              unless arr[index1] == guess[index1] ||
+                arr[index1] == previous_guess[index1]
+                to_keep.push(arr)
+              end
             end
           end
         end
       elsif round > 1 && (feedback > previous_feedback)
-        if find_index_difference.length == 1
-          index = index.pop
-          @possible_guesses.map do |arr|
-            if arr[index] == guess[index]
-              to_keep.push(arr)
+        if find_index_difference.length < 3
+          index.length.times do
+            index1 = index.pop
+            @possible_guesses.map do |arr|
+              if arr[index1] == guess[index1]
+                to_keep.push(arr)
+              end
             end
           end
         end
@@ -466,24 +467,8 @@ class ComputerPlayer < Player
     end
     @possible_guesses = to_keep unless to_keep.empty?
     return if to_delete.empty?
-
     to_delete.uniq!
     remove_guesses(to_delete)
-  end
-
-  def reduce_guesses(guess, feedback)
-    i = 0
-    j = -1
-    to_keep = []
-    repeat = feedback == 2 ? 3 : 2
-    repeat.times do
-      @possible_guesses.map do |arr|
-        to_keep.push(arr) if arr[i..feedback + j] == guess[i..feedback + j]
-      end
-      i += 1
-      j += 1
-    end
-    @possible_guesses = to_keep.uniq
   end
 
   def lock_in_guesses(guess)
