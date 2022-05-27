@@ -428,18 +428,23 @@ class ComputerPlayer < Player
     elsif round > 1
     previous_feedback = @past_feedback[-2][0].length
     previous_guess = colours_to_numbers(@past_guesses[-2])
-      if round > 1 && (feedback < previous_feedback) && @skip == 0
+    index = find_index_difference
+      if round > 1 && (feedback < previous_feedback)
         #binding.pry
-        if find_index_difference.length == 1
-          index = find_index_difference.pop
+        if find_index_difference.length < 3
+          index1 = index.pop
           @possible_guesses.map do |arr|
-            to_keep.push(arr) if arr[index] == previous_guess[index]
+            to_keep.push(arr) if arr[index1] == previous_guess[index1]
+          end
+          index2 = index.pop
+          @possible_guesses.map do |arr|
+            to_keep.push(arr) if arr[index2] == previous_guess[index2]
           end
         end
         #binding.pry
       elsif round > 1 && (feedback == previous_feedback)
         if find_index_difference.length == 1
-          index = find_index_difference.pop
+          index = index.pop
           @possible_guesses.map do |arr|
             unless arr[index] == guess[index] ||
               arr[index] == previous_guess[index]
@@ -447,9 +452,9 @@ class ComputerPlayer < Player
             end
           end
         end
-      elsif round > 1 && (feedback > previous_feedback) && @skip == 0
+      elsif round > 1 && (feedback > previous_feedback)
         if find_index_difference.length == 1
-          index = find_index_difference.pop
+          index = index.pop
           @possible_guesses.map do |arr|
             if arr[index] == guess[index]
               to_keep.push(arr)
