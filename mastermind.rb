@@ -464,25 +464,7 @@ class ComputerPlayer < Player
     i = 0
     correct_guesses = []
     to_keep = []
-    guess.combination(feedback) { |g| correct_guesses.push(g) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.reverse) }
-    # add multiple shuffles to ensure all orders are included. needs refactor
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-
+    guess.permutation(feedback) { |g| correct_guesses.push(g) }
     correct_guesses.uniq!
     correct_guesses.length.times do
       @possible_guesses.map do |arr|
