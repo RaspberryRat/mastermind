@@ -432,6 +432,7 @@ class ComputerPlayer < Player
     to_delete.push(guess)
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
     #binding.pry
+    reduce_guesses(guess, feedback) if feedback > 1
     lock_in_guesses(guess) if feedback > 0
 
     if feedback_w_colour > 0 #i think this is right
@@ -501,6 +502,21 @@ class ComputerPlayer < Player
 
     to_delete.uniq!
     remove_guesses(to_delete)
+  end
+  
+  def reduce_guesses(guess, feedback)
+    i = 0
+    j = -1
+    to_keep = []
+    repeat = feedback == 2 ? 3 : 2
+    repeat.times do
+      @possible_guesses.map do |arr|
+        to_keep.push(arr) if arr[i..feedback + j] == guess[i..feedback + j]
+      end
+      i += 1
+      j += 1
+    end
+    @possible_guesses = to_keep.uniq
   end
   
   def lock_in_guesses(guess)
