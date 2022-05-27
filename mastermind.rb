@@ -13,6 +13,7 @@ module Breakables
     past_feedback.push(guess)
   end
 
+  # This prints out all guesses for player review
   def report_guesses
     i = 1
     role = @game.check_role == "codebreaker" ? "You" : "The computer"
@@ -29,6 +30,7 @@ module Breakables
     end
   end
 
+  # This prints out all feedback for player review
   def report_feedback(round=0) # need to find a more elegant solution
     if round == 0
       # this retrives current round guess
@@ -91,10 +93,7 @@ class Game
     @board = colour_code
   end
 
-  # code here isn't needed. Used for debugging
-  def check_code
-    puts "this is the code: #{@player2.read_code}"
-  end
+  private
 
   def game_turn_codebreaker
     until @round_number == 10
@@ -116,15 +115,15 @@ class Game
     game_over_computer
   end
 
+  protected
+
   def check_answer(guess)
     code = board
     if code == guess
       puts "\n\n**\nWINNER!\n**\n"
-      if @check_role == "codebreaker"
-      return game_over_winner
-      else
-        return game_over_computer_wins
-      end
+      return game_over_winner if @check_role == "codebreaker"
+
+      return game_over_computer_wins
     else
       role = @check_role == "codebreaker" ? "You" : "The computer"
       puts "\n#{role} guess is incorrect."
@@ -142,6 +141,8 @@ class Game
     feedback.push(correct_colours(guess, code))
     feedback
   end
+
+  private 
 
   def delete_code_location_match(code, feedback)
     # deletes matches in the code where the guess was correct
