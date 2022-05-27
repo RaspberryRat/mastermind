@@ -60,6 +60,7 @@ class Game
   @@game_number = 0
   @@computer_wins = 0
   @@player_wins = 0
+  @@player_win_codes = []
   def initialize
     @board = Array.new(4)
     @round_number = 0
@@ -68,7 +69,6 @@ class Game
       @player1 = CodeMaker.new(self, get_current_code)
       @player2 = ComputerPlayer.new(self, "codebreaker")
       @check_role = "codemaker"
-      binding.pry
       game_turn_codemaker
     else
       @player1 = CodeBreaker.new(self)
@@ -201,7 +201,11 @@ class Game
     # end of game if codebreked guesses code
     puts "\n\nYou have made #{@round_number} guesses and won! Codebreaker wins"\
     ". \nThe correct code was #{@player2.read_code}"
-    new_game until @@game_number == 1296
+    unless @@game_number == 1295
+      binding.pry
+    else
+      new_game
+    end
   end
 
   def new_game
@@ -221,15 +225,23 @@ class Game
     # end of game if computer fails to win as codebreaker
     puts "\n\nThe computer has failed to break your code after #{@round_number} rounds! You are a brilliant codemaker."
     @@player_wins += 1
-    new_game until @@game_number == 1296
-    
+    @@player_win_codes.push(@board)
+    unless @@game_number == 1295
+      new_game
+    else
+      binding.pry
+    end
   end
 
   def game_over_computer_wins
     # game over if computer wins
     puts "\n\nThe computer has broken your code after #{@round_number} rounds. You have failed as a codemaker."
     @@computer_wins += 1
-    new_game until @@game_number == 1296
+    unless @@game_number == 1295
+      new_game
+    else
+      binding.pry
+    end
   end
 end
 
@@ -480,24 +492,7 @@ class ComputerPlayer < Player
     i = 0
     correct_guesses = []
     to_keep = []
-    guess.combination(feedback) { |g| correct_guesses.push(g) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.reverse) }
-    # add multiple shuffles to ensure all orders are included. needs refactor
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
-    guess.combination(feedback) { |g| correct_guesses.push(g.shuffle) }
+    guess.permutation(feedback) { |g| correct_guesses.push(g) }
 
     correct_guesses.uniq!
     correct_guesses.length.times do
@@ -539,8 +534,7 @@ class CodeMaker < Player
   def initialize(game, code)
     puts "You are the codemaker!"
     super
-    @current_code = code
-    binding.pry
+    @game.code_maker(code)
   end
 
   def create_code
