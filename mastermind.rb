@@ -70,6 +70,7 @@ class Game
       @player1 = CodeMaker.new(self, get_current_code)
       @player2 = ComputerPlayer.new(self, "codebreaker")
       @check_role = "codemaker"
+
       game_turn_codemaker
     else
       @player1 = CodeBreaker.new(self)
@@ -84,7 +85,9 @@ class Game
   def get_current_code
     code = []
     CODES.repeated_permutation(4) { |p| code.push(p) }
-    code[@@game_number]
+    c = code[@@game_number]
+    print "The code is #{c}"
+    c
   end
 
   def codemaker_or_breaker?
@@ -456,38 +459,43 @@ class ComputerPlayer < Player
         i += 1
       end
     elsif round > 1
-    previous_feedback = @past_feedback[-2][0].length
-    previous_guess = colours_to_numbers(@past_guesses[-2])
-      if round > 1 && (feedback < previous_feedback) && @skip == 0
-        #binding.pry
-        if find_index_difference.length == 1
-          index = find_index_difference.pop
-          @possible_guesses.map do |arr|
-            to_keep.push(arr) if arr[index] == previous_guess[index]
-          end
-        end
-        #binding.pry
-      elsif round > 1 && (feedback == previous_feedback)
-        if find_index_difference.length == 1
-          index = find_index_difference.pop
-          @possible_guesses.map do |arr|
-            unless arr[index] == guess[index] ||
-              arr[index] == previous_guess[index]
-              to_keep.push(arr)
+      previous_feedback = @past_feedback[-2][0].length
+      previous_guess = colours_to_numbers(@past_guesses[-2])
+      index = find_index_difference
+        if round > 1 && (feedback < previous_feedback)
+          #binding.pry
+          if find_index_difference.length < 3
+            index1 = index.pop
+            @possible_guesses.map do |arr|
+              to_keep.push(arr) if arr[index1] == previous_guess[index1]
+            end
+            index2 = index.pop
+            @possible_guesses.map do |arr|
+              to_keep.push(arr) if arr[index2] == previous_guess[index2]
             end
           end
-        end
-      elsif round > 1 && (feedback > previous_feedback) && @skip == 0
-        if find_index_difference.length == 1
-          index = find_index_difference.pop
-          @possible_guesses.map do |arr|
-            if arr[index] == guess[index]
-              to_keep.push(arr)
+          #binding.pry
+        elsif round > 1 && (feedback == previous_feedback)
+          if find_index_difference.length == 1
+            index = index.pop
+            @possible_guesses.map do |arr|
+              unless arr[index] == guess[index] ||
+                arr[index] == previous_guess[index]
+                to_keep.push(arr)
+              end
+            end
+          end
+        elsif round > 1 && (feedback > previous_feedback)
+          if find_index_difference.length == 1
+            index = index.pop
+            @possible_guesses.map do |arr|
+              if arr[index] == guess[index]
+                to_keep.push(arr)
+              end
             end
           end
         end
       end
-    end
     @possible_guesses = to_keep unless to_keep.empty?
     return if to_delete.empty?
 
