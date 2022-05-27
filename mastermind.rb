@@ -1,7 +1,7 @@
 require "pry-byebug"
 
 module Codes
-  CODES = %w[red green blue yellow brown orange].freeze
+  CODES = %w[red green blue yellow brown orange ].freeze
 end
 
 module Breakables
@@ -61,6 +61,7 @@ class Game
   @@computer_wins = 0
   @@player_wins = 0
   @@player_win_codes = []
+  @@average_round_wins = 0
   def initialize
     @board = Array.new(4)
     @round_number = 0
@@ -187,7 +188,16 @@ class Game
   end
 
   def correct_colours(guess, code)
-    guess.uniq.filter { |x| code.uniq.include?(x) }.length
+    i = 0
+    correct_colour = 0
+    guess.length.times do
+      if code.include?(guess[i])
+        correct_colour += 1
+        code.delete_at(code.index(guess[i]))
+      end
+      i += 1
+    end
+    correct_colour
   end
 
   def game_over
@@ -237,6 +247,7 @@ class Game
     # game over if computer wins
     puts "\n\nThe computer has broken your code after #{@round_number} rounds. You have failed as a codemaker."
     @@computer_wins += 1
+    @@average_round_wins += @round_number
     unless @@game_number == 1295
       new_game
     else
