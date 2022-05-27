@@ -478,7 +478,6 @@ class ComputerPlayer < Player
   end
 
   def reduce_guesses
-    #binding.pry
     guess = colours_to_numbers(@past_guesses[-1])
     index = find_index_difference
     return unless index.length == 1
