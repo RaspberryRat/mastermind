@@ -474,6 +474,7 @@ class ComputerPlayer < Player
         end
         #binding.pry
       elsif round > 1 && (feedback == previous_feedback)
+        reduce_guesses if feedback == 3
         if find_index_difference.length == 1
           index = index.pop
           @possible_guesses.map do |arr|
@@ -500,7 +501,24 @@ class ComputerPlayer < Player
     to_delete.uniq!
     remove_guesses(to_delete)
   end
-  
+
+  def reduce_guesses
+    guess = colours_to_numbers(@past_guesses[-1])
+    index = find_index_difference
+    return unless index.length == 1
+    index = index.pop
+    array = [0, 1, 2, 3]
+    array.delete_at(index)
+    to_delete = []
+    i = 0
+    array.length.times do
+      @possible_guesses.map do |arr|
+        to_delete.push(arr) unless arr[array[i]] == guess[array[i]]
+      end
+      i += 1
+    end
+    remove_guesses(to_delete.uniq)
+  end
   def lock_in_guesses(guess)
     i = 0
     to_keep = []
