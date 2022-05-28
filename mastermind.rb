@@ -503,6 +503,7 @@ class ComputerPlayer < Player
   end
 
   def check_past_guesses
+    
     round = @game.round_number
     feedback_is_three = []
     index_location = []
@@ -519,6 +520,7 @@ class ComputerPlayer < Player
       x == @past_guesses[index_location[-1]][ind]
     end
     diff = diff.each_index.select { |i| diff[i] }
+    return unless diff.length == 3
     guess = colours_to_numbers(@past_guesses[index_location[-1]])
     i = 0
     to_keep = []
