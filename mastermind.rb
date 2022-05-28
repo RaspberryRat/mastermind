@@ -432,7 +432,10 @@ class ComputerPlayer < Player
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
     lock_in_guesses(guess) if feedback.positive?
     guess_combination_check(feedback_w_colour, guess) if feedback_w_colour > 0
-    check_past_guesses if feedback == 3 && round > 2
+    if feedback == 3 && round > 2
+      check_past_guesses
+      return
+    end
 
     if feedback_w_colour.positive? && feedback.zero?
       i = 0
