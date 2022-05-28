@@ -340,7 +340,6 @@ class ComputerPlayer < Player
   end
 
   def guess_code
-    @skip = 0
     round = @game.round_number
     puts "\n\nIt is round #{round}. It is the computer's turn to guess the code.\nThe computer guesses..."
     current_feedback = @past_feedback[-1][0].length if round > 1
