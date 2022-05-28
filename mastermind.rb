@@ -327,8 +327,6 @@ class ComputerPlayer < Player
       guess = [1, 1, 2, 2]
     elsif round == 2 && current_feedback < 3
       guess = [3, 3, 4, 4]
-    elsif round == 3 && (feedback_w_colour + prev_feedback_w_colour) > 2
-      guess = @possible_guesses.sort[0]
     elsif round == 3 && current_feedback < 3
       guess = [5, 5, 6, 6]
     else
