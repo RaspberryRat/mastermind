@@ -525,13 +525,14 @@ class ComputerPlayer < Player
       end
     end
     return unless feedback_is_three.length == 2
-    return unless (index_location[-1] - index_location[-2]) > 1
 
     #binding.pry
     diff = @past_guesses[index_location[-2]].map.with_index do |x, ind|
       x == @past_guesses[index_location[-1]][ind]
     end
     diff = diff.each_index.select { |i| diff[i] }
+    return unless diff.length == 3
+
     guess = colours_to_numbers(@past_guesses[index_location[-1]])
     i = 0
     to_keep = []
