@@ -421,10 +421,6 @@ class ComputerPlayer < Player
     feedback_w_colour = feedback + @past_feedback[round - 1][1]
     lock_in_guesses(guess) if feedback.positive?
     guess_combination_check(feedback_w_colour, guess) if feedback_w_colour > 0
-    if feedback == 3 && round > 2
-      check_past_guesses
-      return
-    end
 
     if feedback_w_colour.positive? && feedback.zero?
       i = 0
@@ -480,6 +476,7 @@ class ComputerPlayer < Player
         end
       end
     end
+    check_past_guesses if feedback == 3 && round > 2
     @possible_guesses = to_keep unless to_keep.empty?
     return if to_delete.empty?
 
@@ -516,6 +513,7 @@ class ComputerPlayer < Player
       end
     end
     return unless feedback_is_three.length == 2
+    return unless (index_location[-1] - index_location[-2]) > 1
     #binding.pry
     diff = @past_guesses[index_location[-2]].map.with_index do |x, ind|
       x == @past_guesses[index_location[-1]][ind]
