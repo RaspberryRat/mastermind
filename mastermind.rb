@@ -525,6 +525,8 @@ class ComputerPlayer < Player
       end
     end
     return unless feedback_is_three.length == 2
+    return unless (index_location[-1] - index_location[-2]) > 1
+
     #binding.pry
     diff = @past_guesses[index_location[-2]].map.with_index do |x, ind|
       x == @past_guesses[index_location[-1]][ind]
