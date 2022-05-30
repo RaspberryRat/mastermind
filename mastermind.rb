@@ -294,7 +294,6 @@ class ComputerPlayer < Player
       @possible_guesses = []
       @code_as_numbers = []
       @skip = 0
-      convert_code_to_numbers
       create_permutations
     end
   end
@@ -324,15 +323,14 @@ class ComputerPlayer < Player
     prev_feedback_w_colour = previous_feedback + @past_feedback[-2][1] if round > 2
 
     if round == 1
-      guess = [1, 1, 2, 2]
+      guess = ["red", "red", "green", "green" ]
     elsif round == 2 && current_feedback < 3
-      guess = [3, 3, 4, 4]
+      guess = ["blue", "blue", "yellow", "yellow"]
     elsif round == 3 && current_feedback < 3
-      guess = [5, 5, 6, 6]
+      guess = ["brown", "brown", "orange", "orange"]
     else
       guess = @possible_guesses.sort[0]
     end
-    guess = numbers_to_colours(guess)
     guess.each { |x| puts "#{x}"; sleep(0.2) }
     save_guess(guess)
     guess
@@ -342,57 +340,7 @@ class ComputerPlayer < Player
 
   # generates all possible code permutations
   def create_permutations
-    code_as_numbers.repeated_permutation(4) { |p| possible_guesses.push(p) }
-  end
-
-  # computer uses numbers to represent colours, converts to colours
-  def numbers_to_colours(num_code)
-    i = 0
-    colour_code = []
-    num_code.length.times do
-      index = num_code[i]
-      colour = case index
-      when 1 then "red"
-      when 2 then "green"
-      when 3 then "blue"
-      when 4 then "yellow"
-      when 5 then "brown"
-      when 6 then "orange"
-      when 7 then "black"
-      when 8 then "white"
-      end
-      colour_code.push(colour)
-      i += 1
-    end
-    colour_code
-  end
-
-  # computer uses numbers to represent colours, converts to numbers
-  def colours_to_numbers(colour_code)
-    i = 0
-    num_code = []
-    colour_code.length.times do
-      index = colour_code[i]
-      num = case index
-      when "red" then 1
-      when "green" then 2
-      when "blue" then 3
-      when "yellow" then 4
-      when "brown" then 5
-      when "orange" then 6
-      when "black" then 7
-      when "white" then 8
-      end
-      num_code.push(num)
-      i += 1
-    end
-    num_code
-  end
-
-  # used to generate code list from CODES constant
-  def convert_code_to_numbers
-    CODES.each_with_index { |_, ind| code_as_numbers.push(ind + 1) }
-    code_as_numbers
+    CODES.repeated_permutation(4) { |p| possible_guesses.push(p) }
   end
 
   public
@@ -400,7 +348,7 @@ class ComputerPlayer < Player
   # evaluates the guess and removes possible guesses that will be wrong
   def evaluate_guess
     round = @game.round_number
-    current_guess = colours_to_numbers(past_guesses[round - 1])
+    current_guess = past_guesses[round - 1]
     puts "This is the current guess: #{current_guess}"
     current_feedback = past_feedback[round - 1][0].length
     current_colour_feedback = past_feedback[round - 1][1]
@@ -443,7 +391,7 @@ class ComputerPlayer < Player
       end
     elsif round > 1
       previous_feedback = @past_feedback[-2][0].length
-      previous_guess = colours_to_numbers(@past_guesses[-2])
+      previous_guess = @past_guesses[-2]
       index = find_index_difference
       if round > 1 && (feedback < previous_feedback)
         if find_index_difference.length < 3
@@ -483,7 +431,7 @@ class ComputerPlayer < Player
   end
 
   def reduce_guesses
-    guess = colours_to_numbers(@past_guesses[-1])
+    guess = @past_guesses[-1]
     index = find_index_difference
     return unless index.length == 1
     index = index.pop
@@ -518,7 +466,7 @@ class ComputerPlayer < Player
     end
     diff = diff.each_index.select { |i| diff[i] }
     return unless diff.length == 3
-    guess = colours_to_numbers(@past_guesses[index_location[-1]])
+    guess = @past_guesses[index_location[-1]]
     i = 0
     to_keep = []
     @possible_guesses.map do |arr|
@@ -564,8 +512,8 @@ class ComputerPlayer < Player
 
   # returns index location of the number that changed between guesses
   def find_index_difference
-    current_guess = colours_to_numbers(@past_guesses[-1])
-    previous_guess = colours_to_numbers(@past_guesses[-2])
+    current_guess = @past_guesses[-1]
+    previous_guess = @past_guesses[-2]
     diff = current_guess.map.with_index { |x, i| x == previous_guess[i] }
     diff = diff.each_index.select { |i| !diff[i] }
     diff = diff.last(1) if diff.length == 1
